@@ -1,0 +1,40 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+.outerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.heading {
+  color: rgb(255, 255, 255);
+  margin-bottom: 6vh;
+}
+.innerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: royalblue;
+  width: 50vw;
+  height: 40vh;
+  .btn {
+    display: block;
+    width: 70px;
+    height: 30px;
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  .input {
+    margin-bottom: 2vh;
+    width: 15vw;
+    min-width: 150px;
+    height: 3vh;
+    min-height: 25px;
+  }
+}

@@ -1,24 +1,19 @@
-import './App.css';
-import io from 'socket.io-client';
-import React, { PureComponent } from 'react';
+import React from 'react';
 
-class App extends PureComponent {
-  componentDidMount() {
-    const SERVER = 'http://127.0.0.1:8000';
-    let socket = io(SERVER, {
-      transports: ['websocket', 'polling', 'flashsocket'],
-    });
-    socket.on('connection', () => {
-      console.log('I am connected with back-end!');
-    });
-  }
+import Join from './component/Join/Join';
+import Game from './component/Game/Game';
+import Loby from './component/Loby/Loby';
 
-  render() {
-    return (
-      <div className="App">
-        <h1>Hello from tablic</h1>
-      </div>
-    );
-  }
-}
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+
+const App = () => {
+  return (
+    <Router>
+      <Route path="/" exact component={Join} />
+      <Route path="/loby" component={Loby} />
+      <Route path="/game" component={Game} />
+    </Router>
+  );
+};
+
 export default App;
