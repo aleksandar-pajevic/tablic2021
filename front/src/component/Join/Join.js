@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import styles from './Join.module.scss';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addPlayer } from '../../store/player';
 
 const Join = () => {
   const [name, setName] = useState('');
+  const dispatch = useDispatch();
   console.log(name);
   return (
     <div className={styles.outerContainer}>
@@ -17,7 +20,7 @@ const Join = () => {
             setName(e.target.value.trim());
           }}
         />
-        <Link onClick={(e) => (!name ? e.preventDefault() : null)} to={`/loby`}>
+        <Link onClick={() => dispatch(addPlayer(name))} to={`/loby`}>
           <button className={styles.btn} type="submit">
             ENTER
           </button>
