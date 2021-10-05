@@ -12,6 +12,7 @@ const Loby = () => {
   const dispatch = useDispatch();
 
   let playerName = useSelector((state) => state.player.name);
+  let playerId = useSelector((state) => state.player.id);
 
   useEffect(() => {
     console.log('player name:', playerName);
@@ -20,9 +21,9 @@ const Loby = () => {
       dispatch(addPlayerId(socket.id));
       console.log('client connected:', socket.connected);
       console.log('client socket:', socket);
-      console.log('client socketId:', socket.id);
+      console.log('client socketId:', playerId);
     });
-    socket.emit('join', { playerName }, (error) => {
+    socket.emit('join', { playerName, playerId }, (error) => {
       if (error) {
         alert(error);
       }
@@ -30,8 +31,9 @@ const Loby = () => {
   }, [playerName]);
 
   return (
-    <div>
+    <div className={styles.outterContainer}>
       <h1 className={styles.heading}>Loby</h1>
+      <h2>Waiting for opponent</h2>
     </div>
   );
 };
