@@ -1,29 +1,27 @@
-const express = require('express');
-const io = require('socket.io');
 const http = require('http');
+const express = require('express');
+const socketio = require('socket.io');
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
 const io = socketio(server);
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-  console.log(`listening on *: ${PORT}`);
-});
-
-for (socket of sockets) {
-  console.log('socket id', socket.id);
-  console.log('socket id', socket.data);
-  console.log('socket id', socket.handshake);
-}
-
-io.on('connection', (socket) => {
-  console.log('new client connected!', new Date());
-  console.log('Clients connected', socket.id);
-  socket.emit('connection', null);
+io.on('connect', (socket) => {
+  console.log('new client connected!');
+  socket.on('join', ({ playerName }, callback) => {
+    console.log(`Player name is ${playerName}`);
+    console.log('socket id:', socket.id);
+  });
 });
 
 io.on('disconnection', (socket) => {
   console.log('new client disconnected!', new Date());
   console.log('Clients disconnected', socket.id);
+});
+
+server.listen(PORT, () => {
+  console.log(`listening on *: ${PORT}`);
 });

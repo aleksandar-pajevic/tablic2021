@@ -14,12 +14,15 @@ export const playerSlice = createSlice({
   initialState,
   reducers: {
     // addPlayer: (state, action) => [...state, action.payload],
-    addPlayer: (state, action) => {
+    addPlayerName: (state, action) => {
       state.name = action.payload;
+    },
+    addPlayerId: (state, action) => {
+      state.id = action.payload;
     },
   },
 });
 
-export const { addPlayer } = playerSlice.actions;
+export const { addPlayerName, addPlayerId } = playerSlice.actions;
 
 export default playerSlice.reducer;
