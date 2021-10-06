@@ -3,14 +3,15 @@ import { useSelector } from 'react-redux';
 import styles from './Loby.module.scss';
 import io from 'socket.io-client';
 import { useDispatch } from 'react-redux';
-import { addPlayerId } from '../../store/player';
+import { addPlayerId, addTableCards, addPlayerCards } from '../../store/player';
+import { useHistory } from 'react-router-dom';
 
 let socket;
 let PORT = 'http://127.0.0.1:5000';
 
 const Loby = () => {
   const dispatch = useDispatch();
-
+  const history = useHistory();
   let playerName = useSelector((state) => state.player.name);
   let playerId = useSelector((state) => state.player.id);
 
@@ -27,6 +28,13 @@ const Loby = () => {
       if (error) {
         alert(error);
       }
+    });
+
+    socket.on('first round', ({ cards, table, onMove }) => {
+      console.log('first round trigered');
+      dispatch(addPlayerCards(cards));
+      dispatch(addTableCards(table));
+      history.push('/game');
     });
   }, [playerName]);
 

@@ -3,6 +3,9 @@ const express = require('express');
 const socketio = require('socket.io');
 const cors = require('cors');
 
+const axios = require('axios');
+const deckUrl = 'https://deckofcardsapi.com/api/deck/new/draw/?count=16';
+
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
@@ -15,7 +18,7 @@ const pairs = [];
 io.on('connect', (socket) => {
   console.log('new client connected!');
   socket.on('join', ({ playerName, playerId }, callback) => {
-    console.log(`Player name is ${playerName} and id: ${playerId}`);
+    console.log(`Player name is ${playerName}`);
     console.log('socket id:', socket.id);
     if (candidates.length === 0) {
       candidates.push({
@@ -34,16 +37,41 @@ io.on('connect', (socket) => {
           socket,
         },
       });
-      console.log('pairs lenght:', pairs.length);
       const lastPairIndex = pairs.length - 1;
+
+      console.log('pairs lenght:', pairs.length);
+      console.log('lastPair index:', lastPairIndex);
       console.log('we have red candidate', pairs[lastPairIndex].red.name);
     }
-  });
-});
+    let deckId;
+    let firstRoundCards;
+    if (pairs.length > 0) {
+      axios.get(deckUrl).then((resp) => {
+        const lastPairIndex = pairs.length - 1;
 
-io.on('disconnection', (socket) => {
-  console.log('new client disconnected!', new Date());
-  console.log('Clients disconnected', socket.id);
+        console.log(resp.data);
+        deckId = resp.data.deck_id;
+        firstRoundCards = resp.data.cards;
+        const blueCards = firstRoundCards.slice(0, 6);
+        const redCards = firstRoundCards.slice(6, 12);
+        const table = firstRoundCards.slice(12);
+
+        const blue = pairs[lastPairIndex].blue;
+        const red = pairs[lastPairIndex].red;
+
+        blue.socket.emit('first round', {
+          cards: blueCards,
+          table,
+          onMove: true,
+        });
+        red.socket.emit('first round', {
+          cards: redCards,
+          table,
+          onMove: true,
+        });
+      });
+    }
+  });
 });
 
 server.listen(PORT, () => {
