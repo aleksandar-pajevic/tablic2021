@@ -1,19 +1,26 @@
 .outterContainer {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
   flex-direction: column;
   height: 100vh;
 }
 .opponentCards {
   display: flex;
-  justify-content: space-between;
-  width: 450px;
 }
 .card {
   text-align: center;
   width: 10vw;
   height: 20vh;
   margin-left: 5px;
-  background-color: red;
+  // background-color: red;
+  border: 1px solid black;
+  background-size: cover;
+  border-radius: 10px;
+}
+.playerCards {
+  display: flex;
+}
+.table {
+  display: flex;
 }

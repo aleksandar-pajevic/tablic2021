@@ -3,7 +3,11 @@ import { useSelector } from 'react-redux';
 import styles from './Loby.module.scss';
 import io from 'socket.io-client';
 import { useDispatch } from 'react-redux';
-import { addPlayerId, addTableCards, addPlayerCards } from '../../store/player';
+import {
+  addPlayerOpponent,
+  addTableCards,
+  addPlayerCards,
+} from '../../store/player';
 import { useHistory } from 'react-router-dom';
 
 let socket;
@@ -13,27 +17,25 @@ const Loby = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   let playerName = useSelector((state) => state.player.name);
-  let playerId = useSelector((state) => state.player.id);
 
   useEffect(() => {
     console.log('player name:', playerName);
     socket = io(PORT, { transports: ['websocket', 'polling', 'flashsocket'] });
     socket.on('connect', () => {
-      dispatch(addPlayerId(socket.id));
       console.log('client connected:', socket.connected);
       console.log('client socket:', socket);
-      console.log('client socketId:', playerId);
     });
-    socket.emit('join', { playerName, playerId }, (error) => {
+    socket.emit('join', { playerName }, (error) => {
       if (error) {
         alert(error);
       }
     });
 
-    socket.on('first round', ({ cards, table, onMove }) => {
+    socket.on('first round', ({ cards, table, onMove, opponent }) => {
       console.log('first round trigered');
       dispatch(addPlayerCards(cards));
       dispatch(addTableCards(table));
+      dispatch(addPlayerOpponent(opponent));
       history.push('/game');
     });
   }, [playerName]);
