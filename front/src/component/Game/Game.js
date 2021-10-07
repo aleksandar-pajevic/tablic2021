@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import styles from './Game.module.scss';
 import { useSelector } from 'react-redux';
+import Card from '../Card/Card';
 
 const Game = () => {
   const player = useSelector((state) => state.player);
   console.log(player);
   const [opponentCards, setOpponentCards] = useState([1, 2, 3, 4, 5, 6]);
+
   return (
     <div className={styles.outterContainer}>
       <h1>Game</h1>
@@ -14,20 +16,14 @@ const Game = () => {
 
         <div className={styles.opponentCards}>
           {opponentCards.map((card, i) => (
-            <div key={i} className={styles.card}>
-              card
-            </div>
+            <Card card={card} i={i} />
           ))}
         </div>
       </div>
 
       <div className={styles.table}>
         {player.cards.table.map((card, i) => (
-          <div
-            key={i}
-            className={styles.card}
-            style={{ backgroundImage: `url(${card.image})` }}
-          ></div>
+          <Card card={card} i={i} />
         ))}
       </div>
 
@@ -36,11 +32,7 @@ const Game = () => {
 
         <div className={styles.playerCards}>
           {player.cards.hand.map((card, i) => (
-            <div
-              key={i}
-              className={styles.card}
-              style={{ backgroundImage: `url(${card.image})` }}
-            ></div>
+            <Card card={card} i={i} />
           ))}
         </div>
       </div>

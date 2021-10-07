@@ -7,6 +7,7 @@ import {
   addPlayerOpponent,
   addTableCards,
   addPlayerCards,
+  setPlayerMove,
 } from '../../store/player';
 import { useHistory } from 'react-router-dom';
 
@@ -36,6 +37,7 @@ const Loby = () => {
       dispatch(addPlayerCards(cards));
       dispatch(addTableCards(table));
       dispatch(addPlayerOpponent(opponent));
+      dispatch(setPlayerMove(onMove));
       history.push('/game');
     });
   }, [playerName]);

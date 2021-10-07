@@ -46,30 +46,32 @@ io.on('connect', (socket) => {
     let deckId;
     let firstRoundCards;
     if (pairs.length > 0) {
-      axios.get(deckUrl).then((resp) => {
-        const lastPairIndex = pairs.length - 1;
+      pairs.forEach((pair) => {
+        axios.get(deckUrl).then((resp) => {
+          const lastPairIndex = pairs.length - 1;
 
-        console.log(resp.data);
-        deckId = resp.data.deck_id;
-        firstRoundCards = resp.data.cards;
-        const blueCards = firstRoundCards.slice(0, 6);
-        const redCards = firstRoundCards.slice(6, 12);
-        const table = firstRoundCards.slice(12);
+          console.log(resp.data);
+          deckId = resp.data.deck_id;
+          firstRoundCards = resp.data.cards;
+          const blueCards = firstRoundCards.slice(0, 6);
+          const redCards = firstRoundCards.slice(6, 12);
+          const table = firstRoundCards.slice(12);
 
-        const blue = pairs[lastPairIndex].blue;
-        const red = pairs[lastPairIndex].red;
+          const blue = pairs[lastPairIndex].blue;
+          const red = pairs[lastPairIndex].red;
 
-        blue.socket.emit('first round', {
-          cards: blueCards,
-          table,
-          onMove: true,
-          opponent: red.name,
-        });
-        red.socket.emit('first round', {
-          cards: redCards,
-          table,
-          onMove: true,
-          opponent: blue.name,
+          blue.socket.emit('first round', {
+            cards: blueCards,
+            table,
+            onMove: true,
+            opponent: red.name,
+          });
+          red.socket.emit('first round', {
+            cards: redCards,
+            table,
+            onMove: false,
+            opponent: blue.name,
+          });
         });
       });
     }
