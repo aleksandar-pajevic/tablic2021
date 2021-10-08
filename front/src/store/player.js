@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   name: '',
   onMove: null,
+  socket: null,
   cards: {
     selected: [],
     hand: null,
@@ -12,7 +13,7 @@ const initialState = {
   opponent: {
     name: null,
     cards: {
-      hand: [],
+      hand: null,
     },
   },
 };
@@ -25,37 +26,15 @@ export const playerSlice = createSlice({
     addPlayerName: (state, action) => {
       state.name = action.payload;
     },
-    addPlayerCards: (state, action) => {
-      state.cards.hand = action.payload;
-    },
-    addTableCards: (state, action) => {
-      state.cards.table = action.payload;
-    },
-    addPlayerOpponent: (state, action) => {
-      state.opponent.name = action.payload.name;
-      state.opponent.cards.hand = [
-        {
-          image: `images/${action.payload.color}.svg`,
-        },
-        {
-          image: `images/${action.payload.color}.svg`,
-        },
-        {
-          image: `images/${action.payload.color}.svg`,
-        },
-        {
-          image: `images/${action.payload.color}.svg`,
-        },
-        {
-          image: `images/${action.payload.color}.svg`,
-        },
-        {
-          image: `images/${action.payload.color}.svg`,
-        },
-      ];
-    },
-    setPlayerMove: (state, action) => {
-      state.onMove = action.payload;
+    initializeGame: (state, action) => {
+      state.cards.hand = action.payload.cards;
+      state.cards.table = action.payload.table;
+      state.opponent.name = action.payload.opponent.name;
+      state.opponent.cards.hand = Array(6).fill({
+        image: `images/${action.payload.opponent.color}.svg`,
+      });
+      state.onMove = action.payload.onMove;
+      state.socket = action.payload.socket;
     },
     selectCard: (state, action) => {
       console.log('adding card');
@@ -77,13 +56,10 @@ export const playerSlice = createSlice({
 
 export const {
   addPlayerName,
-  addPlayerOpponent,
-  addPlayerCards,
-  addTableCards,
-  setPlayerMove,
   selectCard,
   unselectCard,
   tryTake,
+  initializeGame,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

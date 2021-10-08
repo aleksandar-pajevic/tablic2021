@@ -3,12 +3,7 @@ import { useSelector } from 'react-redux';
 import styles from './Loby.module.scss';
 import io from 'socket.io-client';
 import { useDispatch } from 'react-redux';
-import {
-  addPlayerOpponent,
-  addTableCards,
-  addPlayerCards,
-  setPlayerMove,
-} from '../../store/player';
+import { initializeGame } from '../../store/player';
 import { useHistory } from 'react-router-dom';
 
 let socket;
@@ -34,10 +29,7 @@ const Loby = () => {
 
     socket.on('first round', ({ cards, table, onMove, opponent }) => {
       console.log('first round trigered');
-      dispatch(addPlayerCards(cards));
-      dispatch(addTableCards(table));
-      dispatch(addPlayerOpponent(opponent));
-      dispatch(setPlayerMove(onMove));
+      dispatch(initializeGame({ cards, table, opponent, onMove, socket }));
       history.push('/game');
     });
   }, [playerName]);
