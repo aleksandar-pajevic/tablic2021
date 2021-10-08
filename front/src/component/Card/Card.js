@@ -1,35 +1,37 @@
 import React from 'react';
 import styles from './Card.module.scss';
-import { selectCard, unselectCard } from '../../store/player';
+import { selectCard, unselectCard, tryTake } from '../../store/player';
 import { useDispatch } from 'react-redux';
 import { useState } from 'react';
 
-const Card = ({ card, i }) => {
+const Card = ({ card, onMove, table, player, i }) => {
   const dispatch = useDispatch();
   const [selected, setSelected] = useState(false);
   const toggleSelect = () => {
     setSelected(!selected);
   };
-  console.log(selected);
+  console.log('onMove from card:', onMove);
   return (
     <div
-      // onClick={() => {
-      //   dispatch(selectCard(card));
-      // }}
-
       onClick={
-        selected
+        onMove && table
+          ? selected
+            ? () => {
+                dispatch(unselectCard(card));
+                toggleSelect();
+              }
+            : () => {
+                dispatch(selectCard(card));
+                toggleSelect();
+              }
+          : onMove && player
           ? () => {
-              dispatch(unselectCard(card));
-              toggleSelect();
+              dispatch(tryTake(card));
             }
-          : () => {
-              dispatch(selectCard(card));
-              toggleSelect();
-            }
+          : null
       }
       key={i}
-      className={styles.card}
+      className={selected ? `${styles.card} ${styles.active}` : styles.card}
       style={{ backgroundImage: `url(${card.image})` }}
     ></div>
   );

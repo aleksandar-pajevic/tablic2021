@@ -2,13 +2,18 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   name: '',
-  opponent: null,
   onMove: null,
   cards: {
     selected: [],
     hand: null,
     taken: null,
     table: [],
+  },
+  opponent: {
+    name: null,
+    cards: {
+      hand: [],
+    },
   },
 };
 
@@ -27,7 +32,27 @@ export const playerSlice = createSlice({
       state.cards.table = action.payload;
     },
     addPlayerOpponent: (state, action) => {
-      state.opponent = action.payload;
+      state.opponent.name = action.payload.name;
+      state.opponent.cards.hand = [
+        {
+          image: `images/${action.payload.color}.svg`,
+        },
+        {
+          image: `images/${action.payload.color}.svg`,
+        },
+        {
+          image: `images/${action.payload.color}.svg`,
+        },
+        {
+          image: `images/${action.payload.color}.svg`,
+        },
+        {
+          image: `images/${action.payload.color}.svg`,
+        },
+        {
+          image: `images/${action.payload.color}.svg`,
+        },
+      ];
     },
     setPlayerMove: (state, action) => {
       state.onMove = action.payload;
@@ -44,6 +69,9 @@ export const playerSlice = createSlice({
         (card) => card.code !== action.payload.code
       );
     },
+    tryTake: (state, action) => {
+      console.log('Try take with:', action.payload);
+    },
   },
 });
 
@@ -55,6 +83,7 @@ export const {
   setPlayerMove,
   selectCard,
   unselectCard,
+  tryTake,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

@@ -64,13 +64,13 @@ io.on('connect', (socket) => {
             cards: blueCards,
             table,
             onMove: true,
-            opponent: red.name,
+            opponent: { name: red.name, color: 'red' },
           });
           red.socket.emit('first round', {
             cards: redCards,
             table,
             onMove: false,
-            opponent: blue.name,
+            opponent: { name: blue.name, color: 'blue' },
           });
         });
       });
