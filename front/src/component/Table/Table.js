@@ -9,8 +9,8 @@ const Table = ({ player }) => {
         <Card
           card={card}
           onMove={player.onMove}
-          table={true}
-          player={false}
+          isTable={true}
+          isPlayer={false}
           i={i}
         />
       ))}

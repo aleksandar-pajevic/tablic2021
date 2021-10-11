@@ -3,7 +3,6 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   name: '',
   onMove: null,
-  socket: null,
   cards: {
     selected: [],
     hand: null,
@@ -34,7 +33,6 @@ export const playerSlice = createSlice({
         image: `images/${action.payload.opponent.color}.svg`,
       });
       state.onMove = action.payload.onMove;
-      state.socket = action.payload.socket;
     },
     selectCard: (state, action) => {
       console.log('adding card');

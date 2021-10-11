@@ -3,10 +3,19 @@ import styles from './Join.module.scss';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addPlayerName } from '../../store/player';
+import { useHistory } from 'react-router-dom';
 
 const Join = () => {
   const [name, setName] = useState('');
   const dispatch = useDispatch();
+  let history = useHistory();
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      dispatch(addPlayerName(name));
+      history.push('/loby');
+    }
+  };
+
   // console.log(name);
   return (
     <div className={styles.outerContainer}>
@@ -16,9 +25,10 @@ const Join = () => {
           type="text"
           placeholder="your name"
           className={styles.input}
-          onChange={(e) => {
-            setName(e.target.value.trim());
+          onChange={({ target: { value } }) => {
+            setName(value.trim());
           }}
+          onKeyPress={handleKeyPress}
         />
         <Link onClick={() => dispatch(addPlayerName(name))} to={`/loby`}>
           <button className={styles.btn} type="submit">

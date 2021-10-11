@@ -12,8 +12,8 @@ const Player = ({ player }) => {
           <Card
             card={card}
             onMove={player.onMove}
-            table={false}
-            player={true}
+            isTable={false}
+            isPlayer={true}
             i={i}
           />
         ))}
