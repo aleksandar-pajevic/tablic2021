@@ -9,23 +9,17 @@ let arr = [
     value: '2',
   },
   {
-    value: '6',
+    value: '7',
   },
   {
-    value: '4',
-  },
-  {
-    value: '11',
-  },
-  {
-    value: '11',
+    value: '13',
   },
   {
     value: '11',
   },
 ];
 
-let card = { value: '6' };
+let card = { value: '13' };
 
 function filterCard(card) {
   switch (card.value) {
@@ -59,15 +53,18 @@ function takeCards(cards, card) {
   for (let i = 0; i < cards.length; i++) {
     values.push(filterCard(cards[i]));
   }
-  values.sort((a, b) => a - b);
   valuesArr = [];
+  values.sort((a, b) => a - b);
 
+  valuesArr.push(values);
+  let change = true;
   let indexes = getAllIndexes(values, 11);
-  if (indexes.length > 0) {
-    valuesArr.push(values);
+  if (indexes.length > 0 && change) {
     for (let n = 1; n < indexes.length + 1; n++) {
       valuesArr.push([...valuesArr[n - 1]]);
       valuesArr[n][indexes[n - 1]] = 1;
+      valuesArr[n].sort((a, b) => a - b);
+      change = false;
     }
   }
   console.log('indexes', indexes);
@@ -79,51 +76,60 @@ function takeCards(cards, card) {
     console.log("user can't take the cards");
   }
 
-  let sum = 0;
-  let addedNums = [];
-  for (value in valuesArr) {
-  }
-  //first loop
-  for (let x = 0; x < values.length; x++) {
-    console.log('curent x is:', x);
-    sum += values[x];
-    console.log('first loop sum:', sum);
+  for (niz of valuesArr) {
+    let sum = 0;
+    let addedNums = [];
+    console.log('niz from first loop', niz);
+    //first loop
+    for (let x = 0; x < niz.length; x++) {
+      // console.log('curent x is:', x);
+      sum += niz[x];
+      // console.log('first loop sum:', sum);
 
-    if (sum === cardValue) {
-      console.log('we have a match(first loop)');
-      values.splice(x, addedNums.length + 1);
-    } else if (sum > cardValue) {
-      console.log('sum is grater then card value');
-      break;
-    } else {
-      //second loop
-      for (let y = x + 1; y < values.length; y++) {
-        console.log('curent y is:', y);
+      if (sum === cardValue) {
+        console.log('we have a match(first loop)');
+        niz.splice(x, addedNums.length + 1);
+      } else if (sum > cardValue) {
+        console.log('sum is grater then card value');
+        break;
+      } else {
+        //second loop
+        for (let y = x + 1; y < niz.length; y++) {
+          // console.log('curent y is:', y);
 
-        sum += values[y];
-        addedNums.push(y);
-        console.log('second loop sum:', sum);
+          sum += niz[y];
+          addedNums.push(y);
+          // console.log('second loop sum:', sum);
 
-        if (sum > cardValue) {
-          sum = 0;
-          addedNums = [];
-          break;
-        } else if (sum === cardValue) {
-          console.log('we have match, added nums are:', x, addedNums);
-          values.splice(x, addedNums.length + 1);
-          console.log('new reduced values:', values);
-          sum = 0;
-          addedNums = [];
-          x = -1;
-          break;
+          if (sum > cardValue) {
+            sum = 0;
+            addedNums = [];
+            break;
+          } else if (sum === cardValue) {
+            console.log('we have match, added nums are:', x, addedNums);
+            niz.splice(x, addedNums.length + 1);
+            console.log('new reduced values:', values);
+            sum = 0;
+            addedNums = [];
+            x = -1;
+            break;
+          }
         }
       }
     }
   }
-  if (values.length === 0) {
-    return console.log('player can take cards');
+  console.log('niz:', valuesArr);
+  let lengths = [];
+  for (let m = 0; m < valuesArr.length; m++) {
+    lengths.push(valuesArr[m].length);
+    console.log('lengths from loop:', lengths);
+  }
+  console.log('lengths:', lengths);
+
+  if (lengths.indexOf(0) >= 0) {
+    return console.log('user can take cards');
   } else {
-    return console.log("player can't take cards");
+    return console.log("user can't take cards");
   }
 }
 
