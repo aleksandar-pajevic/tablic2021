@@ -34,6 +34,9 @@ export const playerSlice = createSlice({
       });
       state.onMove = action.payload.onMove;
     },
+    changeMove: (state, action) => {
+      state.onMove = !state.onMove;
+    },
     selectCard: (state, action) => {
       console.log('adding card');
       //add card
@@ -58,6 +61,7 @@ export const {
   unselectCard,
   tryTake,
   initializeGame,
+  changeMove,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
