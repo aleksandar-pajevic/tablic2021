@@ -3,7 +3,7 @@ let arr = [
     value: '3',
   },
   {
-    value: '2',
+    value: '3',
   },
   {
     value: '2',
@@ -12,27 +12,20 @@ let arr = [
     value: '6',
   },
   {
-    value: '7',
+    value: '4',
   },
   {
-    value: '5',
+    value: '11',
   },
   {
-    value: '6',
+    value: '11',
   },
   {
-    value: '2',
+    value: '11',
   },
-  {
-    value: '10',
-  },
-  {
-    value: '8',
-  },
-  // {code: "QS", image: "https://deckofcardsapi.com/static/img/QS.png",  value: "QUEEN", suit: "SPADES"}
 ];
 
-let card = { value: '14' };
+let card = { value: '6' };
 
 function filterCard(card) {
   switch (card.value) {
@@ -53,6 +46,12 @@ function filterCard(card) {
       break;
   }
 }
+function getAllIndexes(arr, val) {
+  var indexes = [],
+    i;
+  for (i = 0; i < arr.length; i++) if (arr[i] === val) indexes.push(i);
+  return indexes;
+}
 
 function takeCards(cards, card) {
   let values = [];
@@ -61,13 +60,28 @@ function takeCards(cards, card) {
     values.push(filterCard(cards[i]));
   }
   values.sort((a, b) => a - b);
+  valuesArr = [];
+
+  let indexes = getAllIndexes(values, 11);
+  if (indexes.length > 0) {
+    valuesArr.push(values);
+    for (let n = 1; n < indexes.length + 1; n++) {
+      valuesArr.push([...valuesArr[n - 1]]);
+      valuesArr[n][indexes[n - 1]] = 1;
+    }
+  }
+  console.log('indexes', indexes);
+  console.log('val arr', valuesArr);
+
   console.log('values:', values);
   console.log('value:', cardValue);
+  if (values[values.length - 1] > cardValue) {
+    console.log("user can't take the cards");
+  }
 
   let sum = 0;
   let addedNums = [];
-  if (values[values.length - 1] > cardValue) {
-    console.log("user can't take the cards");
+  for (value in valuesArr) {
   }
   //first loop
   for (let x = 0; x < values.length; x++) {
