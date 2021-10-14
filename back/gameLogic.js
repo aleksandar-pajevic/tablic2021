@@ -1,17 +1,3 @@
-let arr = [
-  {
-    value: '10',
-  },
-  {
-    value: '11',
-  },
-  {
-    value: '11',
-  },
-];
-
-let card = { value: '11' };
-
 function filterCard(card) {
   switch (card.value) {
     case 'ACE':
@@ -63,13 +49,8 @@ function takeCards(cards, card) {
       change = false;
     }
   }
-  // console.log('indexes', indexes);
-  console.log('val arr', valuesArr);
 
-  console.log('values:', values);
-  console.log('card value:', cardValue);
   if (values[values.length - 1] > cardValue) {
-    console.log("user can't take the cards");
   }
 
   for (niz of valuesArr) {
@@ -77,38 +58,27 @@ function takeCards(cards, card) {
     let addedNums = [];
     //first loop
     for (let x = niz.length - 1; x >= 0; x--) {
-      console.log('niz from first loop', niz);
-      // console.log('curent x is:', x);
       addedNums.push(niz[x]);
       sum += niz[x];
-      // console.log('first loop sum:', sum);
 
       if (sum === cardValue) {
-        console.log('we have a match(first loop)');
         niz = arrFilter(niz, addedNums);
-        console.log('reduced  from first loop:', niz);
         sum = 0;
         addedNums = [];
         x = niz.length;
       } else if (sum > cardValue) {
-        console.log('sum is grater then card value');
       } else {
         //second loop
         for (let y = 0; y < niz.length; y++) {
-          // console.log('curent y is:', y);
-
           sum += niz[y];
           addedNums.push(niz[y]);
-          // console.log('second loop sum:', sum);
 
           if (sum > cardValue) {
             sum = 0;
             addedNums = [];
             break;
           } else if (sum === cardValue) {
-            console.log('we have match, added nums are:', addedNums);
             niz = arrFilter(niz, addedNums);
-            console.log('reduced  from second loop:', niz);
             sum = 0;
             addedNums = [];
             x = niz.length;
@@ -118,19 +88,14 @@ function takeCards(cards, card) {
       }
     }
   }
-  console.log('niz:', valuesArr);
   let lengths = [];
   for (let m = 0; m < valuesArr.length; m++) {
     lengths.push(valuesArr[m].length);
-    console.log('lengths from loop:', lengths);
   }
-  console.log('lengths:', lengths);
 
   if (lengths.indexOf(0) >= 0) {
-    return console.log('user can take cards');
+    return true;
   } else {
-    return console.log("user can't take cards");
+    return false;
   }
 }
-
-takeCards(arr, card);
