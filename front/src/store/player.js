@@ -1,12 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { socket } from '../socket';
 
 const initialState = {
   name: '',
   onMove: null,
+  socket: null,
   cards: {
     selected: [],
+
     hand: null,
-    taken: null,
+    taken: [],
     table: [],
   },
   opponent: {
@@ -33,12 +36,12 @@ export const playerSlice = createSlice({
         image: `images/${action.payload.opponent.color}.svg`,
       });
       state.onMove = action.payload.onMove;
+      state.socket = action.payload.socket;
     },
-    changeMove: (state, action) => {
+    changeOnMove: (state, action) => {
       state.onMove = !state.onMove;
     },
     selectCard: (state, action) => {
-      console.log('adding card');
       //add card
       state.cards.selected.push(action.payload);
     },
@@ -49,8 +52,31 @@ export const playerSlice = createSlice({
         (card) => card.code !== action.payload.code
       );
     },
-    tryTake: (state, action) => {
-      console.log('Try take with:', action.payload);
+    trowToTable: (state, action) => {
+      state.cards.table.push(action.payload);
+      state.cards.selected = [];
+    },
+    takeCards: (state, action) => {
+      // console.log('payload from take cards:', action.payload);
+      state.cards.taken.push(...action.payload.selectedCards);
+      state.cards.taken.push(action.payload.card);
+
+      state.cards.selected = [];
+    },
+    setTable: (state, action) => {
+      state.cards.table = action.payload;
+    },
+    setHand: (state, action) => {
+      state.cards.hand = action.payload;
+    },
+    tryToTake: (state, action) => {
+      socket.emit('try to take', {
+        selectedCards: state.cards.selected,
+        handCards: state.cards.hand,
+        tableCards: state.cards.table,
+        playerSocket: state.socket,
+        card: action.payload,
+      });
     },
   },
 });
@@ -59,9 +85,13 @@ export const {
   addPlayerName,
   selectCard,
   unselectCard,
-  tryTake,
   initializeGame,
-  changeMove,
+  changeOnMove,
+  trowToTable,
+  takeCards,
+  setTable,
+  setHand,
+  tryToTake,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

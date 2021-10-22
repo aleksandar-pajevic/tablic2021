@@ -1,10 +1,9 @@
 import React from 'react';
 import styles from './Card.module.scss';
-import { selectCard, unselectCard, tryTake } from '../../store/player';
+import { selectCard, unselectCard, tryToTake } from '../../store/player';
 import { useDispatch } from 'react-redux';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { socket } from '../../socket';
 
 const Card = ({ card, onMove, isTable, isPlayer, i }) => {
   let playerSelectedCards = useSelector((state) => state.player.cards.selected);
@@ -14,7 +13,6 @@ const Card = ({ card, onMove, isTable, isPlayer, i }) => {
     setSelected(!selected);
   };
 
-  console.log('player from card:', playerSelectedCards);
   return (
     <div
       onClick={
@@ -30,9 +28,8 @@ const Card = ({ card, onMove, isTable, isPlayer, i }) => {
               }
           : onMove && isPlayer
           ? () => {
-              dispatch(tryTake(card));
-              socket.emit('try to take', { playerSelectedCards, card });
-              console.log(playerSelectedCards);
+              dispatch(tryToTake(card));
+              console.log('selected card', playerSelectedCards);
             }
           : null
       }

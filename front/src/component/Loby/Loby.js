@@ -19,9 +19,9 @@ const Loby = () => {
       }
     });
 
-    socket.on('first round', ({ cards, table, onMove, opponent }) => {
+    socket.on('first round', ({ cards, table, onMove, opponent, socket }) => {
       console.log('first round trigered');
-      dispatch(initializeGame({ cards, table, opponent, onMove }));
+      dispatch(initializeGame({ cards, table, opponent, onMove, socket }));
       history.push('/game');
     });
   }, []);
