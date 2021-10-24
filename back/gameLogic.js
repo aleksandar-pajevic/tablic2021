@@ -58,7 +58,7 @@ function takeCards(cards, card) {
     let sum = 0;
     let addedNums = [];
     //first loop
-    for (let x = niz.length - 1; x > 0; x--) {
+    for (let x = niz.length - 1; x >= 0; x--) {
       console.log('1st loop niz:', niz);
       console.log('1st number:', niz[x]);
       console.log('card value:', cardValue);
@@ -76,7 +76,7 @@ function takeCards(cards, card) {
       } else if (sum > cardValue) {
       } else {
         //second loop
-        for (let y = 0; y < niz.length - 1; y++) {
+        for (let y = 0; y < x; y++) {
           console.log('2nd loop niz:', niz);
           console.log('2nd loop number:', niz[y]);
           sum += niz[y];
@@ -122,38 +122,23 @@ exports.filterTable = filterTable;
 
 let test = [
   {
-    value: '8',
-  },
-  {
-    value: '6',
-  },
-  {
-    value: '7',
-  },
-  {
-    value: '7',
-  },
-  {
-    value: '10',
-  },
-  {
     value: '2',
   },
   {
-    value: '2',
+    value: 'ACE',
   },
   {
-    value: '6',
+    value: '7',
   },
   {
     value: '3',
   },
   {
-    value: '5',
+    value: '3',
   },
 ];
 
 let test2 = {
-  value: 'KING',
+  value: '13',
 };
 console.log(takeCards(test, test2));
