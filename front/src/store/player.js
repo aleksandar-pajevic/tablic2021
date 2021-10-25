@@ -24,7 +24,6 @@ export const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
-    // addPlayer: (state, action) => [...state, action.payload],
     addPlayerName: (state, action) => {
       state.name = action.payload;
     },
@@ -78,6 +77,7 @@ export const playerSlice = createSlice({
         card: action.payload,
       });
     },
+    // lastCardEvent: (state, action) => {},
   },
 });
 

@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import styles from './Game.module.scss';
-import { useSelector } from 'react-redux';
 import Table from '../Table/Table';
 import Player from '../Player/Player';
 import { socket } from '../../socket';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { takeCards, setTable, setHand, changeOnMove } from '../../store/player';
 
 const Game = () => {
@@ -39,6 +38,13 @@ const Game = () => {
       console.log('change move emmited');
       dispatch(setTable(newTable));
       dispatch(changeOnMove());
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on('new round', ({ newHand }) => {
+      console.log('New Round Started, hand:', newHand);
+      dispatch(setHand(newHand));
     });
   }, []);
 

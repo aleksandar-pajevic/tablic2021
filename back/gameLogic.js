@@ -116,29 +116,33 @@ function takeCards(cards, card) {
 const filterTable = (table, selected) => {
   return table.filter((item) => !selected.find((el) => item.code === el.code));
 };
+const filterPairs = (pairs, socket) => {
+  return pairs.filter((pair) => pair.room === socket.room);
+};
 
 exports.takeCards = takeCards;
 exports.filterTable = filterTable;
+exports.filterPairs = filterPairs;
 
-let test = [
-  {
-    value: '2',
-  },
-  {
-    value: 'ACE',
-  },
-  {
-    value: '7',
-  },
-  {
-    value: '3',
-  },
-  {
-    value: '3',
-  },
-];
+// let test = [
+//   {
+//     value: '2',
+//   },
+//   {
+//     value: 'ACE',
+//   },
+//   {
+//     value: '7',
+//   },
+//   {
+//     value: '3',
+//   },
+//   {
+//     value: '3',
+//   },
+// ];
 
-let test2 = {
-  value: '13',
-};
-console.log(takeCards(test, test2));
+// let test2 = {
+//   value: '13',
+// };
+// console.log(takeCards(test, test2));

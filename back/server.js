@@ -4,6 +4,7 @@ const socketio = require('socket.io');
 const cors = require('cors');
 const takeCards = require('./gameLogic');
 const gameLogic = require('./gameLogic');
+const filterPairs = require('./gameLogic');
 const { v1: uuidv1, v4: uuidv4 } = require('uuid');
 
 const axios = require('axios');
@@ -35,6 +36,7 @@ function conected(socket) {
     } else {
       pairs.push({
         room: uuidv4(),
+        moves: 0,
         blue: candidates.pop(),
         red: {
           name: playerName,
@@ -62,6 +64,7 @@ function conected(socket) {
         // GET CARDS FROM API
         axios.get(deckUrl).then((resp) => {
           deckId = resp.data.deck_id;
+          pair.deckId = deckId;
           let firstRoundCards = resp.data.cards;
           const blueCards = firstRoundCards.slice(0, 6);
           const redCards = firstRoundCards.slice(6, 12);
@@ -94,10 +97,17 @@ function conected(socket) {
       }
     }
   });
+  // let moveCount = 0;
   socket.on(
     'try to take',
     ({ selectedCards, handCards, tableCards, playerSocket, card }) => {
       let canTakeCards = gameLogic.takeCards(selectedCards, card);
+      let pair = gameLogic.filterPairs(playing, playerSocket)[0];
+      console.log('pair:', pair);
+      pair.moves++;
+      // moveCount++;
+      console.log('curent pair', pair);
+
       if (canTakeCards) {
         console.log('can Take Cards emited');
         let newTable = gameLogic.filterTable(tableCards, selectedCards);
@@ -114,6 +124,18 @@ function conected(socket) {
         console.log('change move emited, room:');
 
         socket.to(playerSocket.room).emit('change move', { newTable });
+        //if this was 12th move in round
+        if (pair.moves % 12 === 0) {
+          //get cards for new round
+          let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
+          axios.get(url).then((resp) => {
+            let newCards = resp.data.cards;
+            const blueCards = newCards.slice(0, 6);
+            const redCards = newCards.slice(6, 12);
+            io.to(pair.blue.socket.id).emit('new round', { blueCards });
+            io.to(pair.red.socket.id).emit('new round', { redCards });
+          });
+        }
       } else {
         console.log('can NOT Take Cards emited');
         let newTable = [...tableCards, card];
@@ -126,13 +148,34 @@ function conected(socket) {
           card,
         });
         socket.to(playerSocket.room).emit('change move', { newTable });
+        //if this was 12th move in round
+        if (pair.moves % 12 === 0) {
+          //get cards for new round
+          let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
+          axios.get(url).then((resp) => {
+            let newCards = resp.data.cards;
+            const blueCards = newCards.slice(0, 6);
+            const redCards = newCards.slice(6, 12);
+            io.to(pair.blue.socket.id).emit('new round', {
+              newHand: blueCards,
+            });
+            io.to(pair.red.socket.id).emit('new round', { newHand: redCards });
+          });
+        }
       }
     }
   );
+
+  socket.on('last card', () => {});
 }
 
-let deckId;
-let firstRoundCards;
+//new roud cards
+function newRound(pair) {
+  let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
+  axios.get(url).then((resp) => {
+    return resp.data.cards;
+  });
+}
 
 server.listen(PORT, () => {
   console.log(`listening on *: ${PORT}`);
