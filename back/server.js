@@ -124,17 +124,22 @@ function conected(socket) {
         console.log('change move emited, room:');
 
         socket.to(playerSocket.room).emit('change move', { newTable });
-        //if this was 12th move in round
-        if (pair.moves % 12 === 0) {
+        //if this was 12th move in game(1st round over)
+        if (pair.moves === 12 || pair.moves === 24 || pair.moves === 36) {
           //get cards for new round
           let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
           axios.get(url).then((resp) => {
             let newCards = resp.data.cards;
             const blueCards = newCards.slice(0, 6);
             const redCards = newCards.slice(6, 12);
-            io.to(pair.blue.socket.id).emit('new round', { blueCards });
-            io.to(pair.red.socket.id).emit('new round', { redCards });
+            io.to(pair.blue.socket.id).emit('new round', {
+              newHand: blueCards,
+            });
+            io.to(pair.red.socket.id).emit('new round', { newHand: redCards });
           });
+          //if this was 48th move in game(game over)
+        } else if (pair.moves === 48) {
+          alert('game over!');
         }
       } else {
         console.log('can NOT Take Cards emited');
@@ -148,8 +153,9 @@ function conected(socket) {
           card,
         });
         socket.to(playerSocket.room).emit('change move', { newTable });
+
         //if this was 12th move in round
-        if (pair.moves % 12 === 0) {
+        if (pair.moves === 12 || pair.moves === 24 || pair.moves === 36) {
           //get cards for new round
           let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
           axios.get(url).then((resp) => {
@@ -161,6 +167,9 @@ function conected(socket) {
             });
             io.to(pair.red.socket.id).emit('new round', { newHand: redCards });
           });
+          //if this was 48th move in game(game over)
+        } else if (pair.moves === 48) {
+          alert('game over!');
         }
       }
     }

@@ -76,8 +76,8 @@ export const playerSlice = createSlice({
         playerSocket: state.socket,
         card: action.payload,
       });
+      state.cards.selected = [];
     },
-    // lastCardEvent: (state, action) => {},
   },
 });
 
