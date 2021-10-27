@@ -11,7 +11,7 @@ const Table = ({ player }) => {
           onMove={player.onMove}
           isTable={true}
           isPlayer={false}
-          i={i}
+          key={card.code}
         />
       ))}
     </div>

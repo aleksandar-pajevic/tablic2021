@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
-const Card = ({ card, onMove, isTable, isPlayer, i }) => {
+const Card = ({ card, onMove, isTable, isPlayer }) => {
   let playerSelectedCards = useSelector((state) => state.player.cards.selected);
   const dispatch = useDispatch();
   const [selected, setSelected] = useState(false);
@@ -33,7 +33,6 @@ const Card = ({ card, onMove, isTable, isPlayer, i }) => {
             }
           : null
       }
-      key={i}
       className={selected ? `${styles.card} ${styles.active}` : styles.card}
       style={{ backgroundImage: `url(${card.image})` }}
     ></div>
