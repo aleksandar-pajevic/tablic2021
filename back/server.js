@@ -97,16 +97,14 @@ function conected(socket) {
       }
     }
   });
-  // let moveCount = 0;
+
   socket.on(
     'try to take',
     ({ selectedCards, handCards, tableCards, playerSocket, card }) => {
       let canTakeCards = gameLogic.takeCards(selectedCards, card);
       let pair = gameLogic.filterPairs(playing, playerSocket)[0];
-      console.log('pair:', pair);
+
       pair.moves++;
-      // moveCount++;
-      console.log('curent pair', pair);
 
       if (canTakeCards) {
         console.log('can Take Cards emited');
@@ -115,17 +113,20 @@ function conected(socket) {
           (handCard) => handCard.code !== card.code
         );
 
+        //player take cards
         io.to(playerSocket.id).emit('can take cards', {
           newTable,
           newHand,
           selectedCards,
           card,
         });
-        console.log('change move emited, room:');
 
-        socket.to(playerSocket.room).emit('change move', { newTable });
-        //if this was 12th move in game(1st round over)
-        if (pair.moves === 12 || pair.moves === 24 || pair.moves === 36) {
+        // round over and have tabla
+
+        if (
+          newTable.length === 0 &&
+          (pair.moves === 12 || pair.moves === 24 || pair.moves === 36)
+        ) {
           //get cards for new round
           let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
           axios.get(url).then((resp) => {
@@ -137,10 +138,53 @@ function conected(socket) {
             });
             io.to(pair.red.socket.id).emit('new round', { newHand: redCards });
           });
-          //if this was 48th move in game(game over)
-        } else if (pair.moves === 48) {
-          alert('game over!');
+
+          //add tabla to player
+          io.to(playerSocket.id).emit('tabla');
         }
+
+        // round over and don't have tabla
+        if (
+          newTable.length > 0 &&
+          (pair.moves === 12 || pair.moves === 24 || pair.moves === 36)
+        ) {
+          //get cards for new round
+          let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
+          axios.get(url).then((resp) => {
+            let newCards = resp.data.cards;
+            const blueCards = newCards.slice(0, 6);
+            const redCards = newCards.slice(6, 12);
+            io.to(pair.blue.socket.id).emit('new round', {
+              newHand: blueCards,
+            });
+            io.to(pair.red.socket.id).emit('new round', { newHand: redCards });
+          });
+        }
+        // game over and have tabla
+        if (newTable.length === 0 && pair.moves === 48) {
+          //add tabla to player
+          io.to(playerSocket.id).emit('tabla');
+          io.to(playerSocket.room).emit('game over');
+        }
+        // game over and don't have tabla
+        if (newTable.length > 0 && pair.moves === 48) {
+          io.to(playerSocket.room).emit('game over');
+        }
+        // not round end and have tabla
+        if (
+          newTable.length === 0 &&
+          (pair.moves !== 12 || pair.moves !== 24 || pair.moves !== 36)
+        ) {
+          //add tabla to player
+          io.to(playerSocket.id).emit('tabla');
+        }
+        // not round over and dont't have tabla
+        if (
+          newTable.length > 0 &&
+          (pair.moves !== 12 || pair.moves !== 24 || pair.moves !== 36)
+        ) {
+        }
+        io.in(playerSocket.room).emit('change move', { newTable });
       } else {
         console.log('can NOT Take Cards emited');
         let newTable = [...tableCards, card];
@@ -152,7 +196,7 @@ function conected(socket) {
           newHand,
           card,
         });
-        socket.to(playerSocket.room).emit('change move', { newTable });
+        io.in(playerSocket.room).emit('change move', { newTable });
 
         //if this was 12th move in round
         if (pair.moves === 12 || pair.moves === 24 || pair.moves === 36) {
@@ -169,7 +213,7 @@ function conected(socket) {
           });
           //if this was 48th move in game(game over)
         } else if (pair.moves === 48) {
-          alert('game over!');
+          io.to(playerSocket.room).emit('game over');
         }
       }
     }

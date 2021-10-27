@@ -4,7 +4,13 @@ import Table from '../Table/Table';
 import Player from '../Player/Player';
 import { socket } from '../../socket';
 import { useDispatch, useSelector } from 'react-redux';
-import { takeCards, setTable, setHand, changeOnMove } from '../../store/player';
+import {
+  takeCards,
+  setTable,
+  setHand,
+  changeOnMove,
+  madeTabla,
+} from '../../store/player';
 
 const Game = () => {
   const player = useSelector((state) => state.player);
@@ -19,18 +25,14 @@ const Game = () => {
           selectedCards
         );
         dispatch(takeCards({ selectedCards, card }));
-        dispatch(setTable(newTable));
         dispatch(setHand(newHand));
-        dispatch(changeOnMove());
       }
     );
   }, []);
   useEffect(() => {
     socket.on('can not take cards', ({ newTable, newHand }) => {
       console.log("log from can't take cards", newHand);
-      dispatch(setTable(newTable));
       dispatch(setHand(newHand));
-      dispatch(changeOnMove());
     });
   }, []);
   useEffect(() => {
@@ -45,6 +47,16 @@ const Game = () => {
     socket.on('new round', ({ newHand }) => {
       console.log('New Round Started, hand:', newHand);
       dispatch(setHand(newHand));
+    });
+  }, []);
+  useEffect(() => {
+    socket.on('tabla', () => {
+      dispatch(madeTabla());
+    });
+  }, []);
+  useEffect(() => {
+    socket.on('game over', () => {
+      alert('game over');
     });
   }, []);
 

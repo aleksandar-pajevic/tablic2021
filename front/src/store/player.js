@@ -5,6 +5,7 @@ const initialState = {
   name: '',
   onMove: null,
   socket: null,
+  tabla: 0,
   cards: {
     selected: [],
 
@@ -78,6 +79,9 @@ export const playerSlice = createSlice({
       });
       state.cards.selected = [];
     },
+    madeTabla: (state, action) => {
+      state.tabla++;
+    },
   },
 });
 
@@ -92,6 +96,7 @@ export const {
   setTable,
   setHand,
   tryToTake,
+  madeTabla,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

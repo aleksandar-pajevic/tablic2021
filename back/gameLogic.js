@@ -120,6 +120,8 @@ const filterPairs = (pairs, socket) => {
   return pairs.filter((pair) => pair.room === socket.room);
 };
 
+function findWinner(pair) {}
+
 exports.takeCards = takeCards;
 exports.filterTable = filterTable;
 exports.filterPairs = filterPairs;
