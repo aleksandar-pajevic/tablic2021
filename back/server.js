@@ -54,8 +54,8 @@ function conected(socket) {
         let pair = pairs.pop();
         const blue = pair.blue;
         const red = pair.red;
-        console.log('pair is this:', pair);
-        console.log('pairs are this:', pairs);
+        // console.log('pair is this:', pair);
+        // console.log('pairs are this:', pairs);
 
         // ADD PLAYERS TO ROOM
         blue.socket.join(pair.room);
@@ -107,6 +107,7 @@ function conected(socket) {
       pair.moves++;
 
       if (canTakeCards) {
+        pair.taken = [...selectedCards, card];
         console.log('can Take Cards emited');
         let newTable = gameLogic.filterTable(tableCards, selectedCards);
         let newHand = handCards.filter(
@@ -120,9 +121,8 @@ function conected(socket) {
           selectedCards,
           card,
         });
-
+        pair.lastTookId = playerSocket.id;
         // round over and have tabla
-
         if (
           newTable.length === 0 &&
           (pair.moves === 12 || pair.moves === 24 || pair.moves === 36)
@@ -168,6 +168,7 @@ function conected(socket) {
         }
         // game over and don't have tabla
         if (newTable.length > 0 && pair.moves === 48) {
+          io.to(playerSocket.id).emit('last took', { newTable });
           io.to(playerSocket.room).emit('game over');
         }
         // not round end and have tabla
@@ -185,6 +186,7 @@ function conected(socket) {
         ) {
         }
         io.in(playerSocket.room).emit('change move', { newTable });
+        console.log('pair from can take', pair);
       } else {
         console.log('can NOT Take Cards emited');
         let newTable = [...tableCards, card];
@@ -213,13 +215,18 @@ function conected(socket) {
           });
           //if this was 48th move in game(game over)
         } else if (pair.moves === 48) {
+          io.to(pair.lastTookId).emit('last took', { newTable });
           io.to(playerSocket.room).emit('game over');
         }
       }
     }
   );
 
-  socket.on('last card', () => {});
+  socket.on('find winner', async (player) => {
+    let pair = gameLogic.filterPairs(playing, player.socket)[0];
+
+    console.log('~~~~find winner player~~~~:', player);
+  });
 }
 
 //new roud cards

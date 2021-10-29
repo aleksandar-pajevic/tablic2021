@@ -148,3 +148,76 @@ exports.filterPairs = filterPairs;
 //   value: '13',
 // };
 // console.log(takeCards(test, test2));
+
+let pair = {
+  room: 'bc32a8d6-35eb-4f7b-a17e-2af0e541ec4c',
+  deckId: 'rfjch0po9f1b',
+  moves: 1,
+  lastTookId: 'UFhz54UmZLy_Zn23AAAH',
+  blue: {
+    name: 'aaa',
+    socket: {
+      _eventsCount: 3,
+      _maxListeners: undefined,
+
+      data: {},
+    },
+  },
+  red: {
+    name: 'sss',
+    socket: {
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      id: 'kokoko12345',
+      data: {},
+    },
+  },
+};
+let player1 = {
+  name: '',
+  onMove: null,
+  socket: {
+    room: 'ararafas',
+    id: 'kokoko12345',
+  },
+  tabla: 0,
+  cards: {
+    selected: [],
+
+    hand: null,
+    taken: [
+      {
+        code: '8S',
+        image: 'https://deckofcardsapi.com/static/img/8S.png',
+        images: [Object],
+        value: '8',
+        suit: 'SPADES',
+      },
+      {
+        code: '8H',
+        image: 'https://deckofcardsapi.com/static/img/8H.png',
+        images: [Object],
+        value: '8',
+        suit: 'HEARTS',
+      },
+    ],
+    table: [],
+  },
+  opponent: {
+    name: null,
+    cards: {
+      hand: null,
+    },
+  },
+};
+
+let findPlayer = (pair, player) => {
+  if (pair.blue.socket.id === player.socket.id) {
+    pair.blue.taken = player.cards.taken;
+  } else {
+    pair.red.taken = player.cards.taken;
+  }
+  console.log(pair);
+};
+
+findPlayer(pair, player1);

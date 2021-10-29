@@ -82,6 +82,12 @@ export const playerSlice = createSlice({
     madeTabla: (state, action) => {
       state.tabla++;
     },
+    lastTook: (state, action) => {
+      state.cards.taken.push(...action.payload);
+    },
+    findWinner: (state, action) => {
+      socket.emit('find winner', state);
+    },
   },
 });
 
@@ -97,6 +103,8 @@ export const {
   setHand,
   tryToTake,
   madeTabla,
+  lastTook,
+  findWinner,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

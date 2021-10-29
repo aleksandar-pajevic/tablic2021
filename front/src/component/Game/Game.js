@@ -10,6 +10,8 @@ import {
   setHand,
   changeOnMove,
   madeTabla,
+  lastTook,
+  findWinner,
 } from '../../store/player';
 
 const Game = () => {
@@ -56,7 +58,14 @@ const Game = () => {
   }, []);
   useEffect(() => {
     socket.on('game over', () => {
-      alert('game over');
+      dispatch(setTable([]));
+      dispatch(findWinner());
+    });
+  }, []);
+  useEffect(() => {
+    socket.on('last took', ({ newTable }) => {
+      console.log('new table from last took:', newTable);
+      dispatch(lastTook(newTable));
     });
   }, []);
 
