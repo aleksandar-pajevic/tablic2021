@@ -53,23 +53,23 @@ function takeCards(cards, card) {
   if (values.length === 0) {
     return false;
   }
-  console.log('values array:', valuesArr);
+  // console.log('values array:', valuesArr);
   for (niz of valuesArr) {
     let sum = 0;
     let addedNums = [];
     //first loop
     for (let x = niz.length - 1; x >= 0; x--) {
-      console.log('1st loop niz:', niz);
-      console.log('1st number:', niz[x]);
-      console.log('card value:', cardValue);
+      // console.log('1st loop niz:', niz);
+      // console.log('1st number:', niz[x]);
+      // console.log('card value:', cardValue);
       addedNums.push(niz[x]);
       sum += niz[x];
-      console.log('1st loop sum:', sum);
+      // console.log('1st loop sum:', sum);
       if (sum === cardValue) {
         niz = arrFilter(niz, addedNums);
         sum = 0;
-        console.log('removed numbers:', addedNums);
-        console.log('1nd loop niz reduced:', niz);
+        // console.log('removed numbers:', addedNums);
+        // console.log('1nd loop niz reduced:', niz);
         addedNums = [];
 
         x = niz.length;
@@ -77,11 +77,11 @@ function takeCards(cards, card) {
       } else {
         //second loop
         for (let y = 0; y < x; y++) {
-          console.log('2nd loop niz:', niz);
-          console.log('2nd loop number:', niz[y]);
+          // console.log('2nd loop niz:', niz);
+          // console.log('2nd loop number:', niz[y]);
           sum += niz[y];
           addedNums.push(niz[y]);
-          console.log('2nd loop sum:', sum);
+          // console.log('2nd loop sum:', sum);
 
           if (sum > cardValue) {
             sum = 0;
@@ -90,8 +90,8 @@ function takeCards(cards, card) {
           } else if (sum === cardValue) {
             niz = arrFilter(niz, addedNums);
             sum = 0;
-            console.log('removed numbers:', addedNums);
-            console.log('2nd loop niz reduced:', niz);
+            // console.log('removed numbers:', addedNums);
+            // console.log('2nd loop niz reduced:', niz);
             addedNums = [];
             x = niz.length;
 
@@ -120,11 +120,20 @@ const filterPairs = (pairs, socket) => {
   return pairs.filter((pair) => pair.room === socket.room);
 };
 
+let findPlayer = (pair, playerSocketId) => {
+  if (pair.blue.socket.id === playerSocketId) {
+    return pair.blue;
+  } else {
+    return pair.red;
+  }
+};
+
 function findWinner(pair) {}
 
 exports.takeCards = takeCards;
 exports.filterTable = filterTable;
 exports.filterPairs = filterPairs;
+exports.findPlayer = findPlayer;
 
 // let test = [
 //   {
@@ -149,75 +158,67 @@ exports.filterPairs = filterPairs;
 // };
 // console.log(takeCards(test, test2));
 
-let pair = {
-  room: 'bc32a8d6-35eb-4f7b-a17e-2af0e541ec4c',
-  deckId: 'rfjch0po9f1b',
-  moves: 1,
-  lastTookId: 'UFhz54UmZLy_Zn23AAAH',
-  blue: {
-    name: 'aaa',
-    socket: {
-      _eventsCount: 3,
-      _maxListeners: undefined,
+// let pair = {
+//   room: 'bc32a8d6-35eb-4f7b-a17e-2af0e541ec4c',
+//   deckId: 'rfjch0po9f1b',
+//   moves: 1,
+//   lastTookId: 'UFhz54UmZLy_Zn23AAAH',
+//   blue: {
+//     name: 'aaa',
+//     socket: {
+//       _eventsCount: 3,
+//       _maxListeners: undefined,
+//       id: 'kokoko1234',
 
-      data: {},
-    },
-  },
-  red: {
-    name: 'sss',
-    socket: {
-      _eventsCount: 3,
-      _maxListeners: undefined,
-      id: 'kokoko12345',
-      data: {},
-    },
-  },
-};
-let player1 = {
-  name: '',
-  onMove: null,
-  socket: {
-    room: 'ararafas',
-    id: 'kokoko12345',
-  },
-  tabla: 0,
-  cards: {
-    selected: [],
+//       data: {},
+//     },
+//   },
+//   red: {
+//     name: 'sss',
+//     socket: {
+//       _eventsCount: 3,
+//       _maxListeners: undefined,
+//       id: 'kokoko12345',
+//       data: {},
+//     },
+//   },
+// };
+// let player1 = {
+//   name: '',
+//   onMove: null,
+//   socket: {
+//     room: 'ararafas',
+//     id: 'kokoko1234',
+//   },
+//   tabla: 0,
+//   cards: {
+//     selected: [],
 
-    hand: null,
-    taken: [
-      {
-        code: '8S',
-        image: 'https://deckofcardsapi.com/static/img/8S.png',
-        images: [Object],
-        value: '8',
-        suit: 'SPADES',
-      },
-      {
-        code: '8H',
-        image: 'https://deckofcardsapi.com/static/img/8H.png',
-        images: [Object],
-        value: '8',
-        suit: 'HEARTS',
-      },
-    ],
-    table: [],
-  },
-  opponent: {
-    name: null,
-    cards: {
-      hand: null,
-    },
-  },
-};
+//     hand: null,
+//     taken: [
+//       {
+//         code: '8S',
+//         image: 'https://deckofcardsapi.com/static/img/8S.png',
+//         images: [Object],
+//         value: '8',
+//         suit: 'SPADES',
+//       },
+//       {
+//         code: '8H',
+//         image: 'https://deckofcardsapi.com/static/img/8H.png',
+//         images: [Object],
+//         value: '8',
+//         suit: 'HEARTS',
+//       },
+//     ],
+//     table: [],
+//   },
+//   opponent: {
+//     name: null,
+//     cards: {
+//       hand: null,
+//     },
+//   },
+// };
 
-let findPlayer = (pair, player) => {
-  if (pair.blue.socket.id === player.socket.id) {
-    pair.blue.taken = player.cards.taken;
-  } else {
-    pair.red.taken = player.cards.taken;
-  }
-  console.log(pair);
-};
-
-findPlayer(pair, player1);
+// console.log(findPlayer(pair, player1.socket));

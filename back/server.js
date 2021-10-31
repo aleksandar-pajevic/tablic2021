@@ -30,17 +30,31 @@ function conected(socket) {
       candidates.push({
         name: playerName,
         socket,
+        tabla: 0,
+        cards: {
+          hand: [],
+          taken: [],
+          opponent: [],
+        },
       });
+
       console.log('we have a blue player:', candidates[0].name);
       console.log('candidates lenght:', candidates.length);
     } else {
       pairs.push({
         room: uuidv4(),
         moves: 0,
+        table: [],
         blue: candidates.pop(),
         red: {
           name: playerName,
           socket,
+          tabla: 0,
+          cards: {
+            hand: [],
+            taken: [],
+            opponent: [],
+          },
         },
       });
       const lastPairIndex = pairs.length - 1;
@@ -54,6 +68,7 @@ function conected(socket) {
         let pair = pairs.pop();
         const blue = pair.blue;
         const red = pair.red;
+        const table = pair.table;
         // console.log('pair is this:', pair);
         // console.log('pairs are this:', pairs);
 
@@ -68,27 +83,33 @@ function conected(socket) {
           let firstRoundCards = resp.data.cards;
           const blueCards = firstRoundCards.slice(0, 6);
           const redCards = firstRoundCards.slice(6, 12);
-          const table = firstRoundCards.slice(12);
+          const tableCards = firstRoundCards.slice(12);
+          blue.cards.hand.push(...blueCards);
+          blue.cards.opponent = Array(6).fill({ image: `images/red.svg` });
+          red.cards.hand.push(...redCards);
+          red.cards.opponent = Array(6).fill({ image: `images/blue.svg` });
+          table.push(...tableCards);
+
           // to individual socketid (private message)
           io.to(blue.socket.id).emit('first round', {
-            cards: blueCards,
-            table,
+            cards: blue.cards.hand,
+            table: table,
             onMove: true,
-            opponent: { name: red.name, color: 'red' },
+            opponent: { name: red.name, cards: blue.cards.opponent },
             socket: {
               room: pair.room,
-              id: pair.blue.socket.id,
+              id: blue.socket.id,
             },
           });
           // to individual socketid (private message)
           io.to(red.socket.id).emit('first round', {
-            cards: redCards,
-            table,
+            cards: red.cards.hand,
+            table: table,
             onMove: false,
-            opponent: { name: blue.name, color: 'blue' },
+            opponent: { name: blue.name, cards: red.cards.opponent },
             socket: {
               room: pair.room,
-              id: pair.red.socket.id,
+              id: red.socket.id,
             },
           });
 
@@ -98,134 +119,214 @@ function conected(socket) {
     }
   });
 
-  socket.on(
-    'try to take',
-    ({ selectedCards, handCards, tableCards, playerSocket, card }) => {
-      let canTakeCards = gameLogic.takeCards(selectedCards, card);
-      let pair = gameLogic.filterPairs(playing, playerSocket)[0];
+  socket.on('try to take', ({ selectedCards, playerSocket, card }) => {
+    let canTakeCards = gameLogic.takeCards(selectedCards, card);
+    let pair = gameLogic.filterPairs(playing, playerSocket)[0];
+    let curentPlayer = gameLogic.findPlayer(pair, playerSocket.id);
+    pair.moves++;
 
-      pair.moves++;
+    if (canTakeCards) {
+      curentPlayer.cards.taken.push(...selectedCards, card);
 
-      if (canTakeCards) {
-        pair.taken = [...selectedCards, card];
-        console.log('can Take Cards emited');
-        let newTable = gameLogic.filterTable(tableCards, selectedCards);
-        let newHand = handCards.filter(
-          (handCard) => handCard.code !== card.code
-        );
+      let newTable = gameLogic.filterTable(pair.table, selectedCards);
+      let newHand = curentPlayer.cards.hand.filter(
+        (handCard) => handCard.code !== card.code
+      );
+      pair.table = newTable;
+      curentPlayer.cards.hand = newHand;
 
-        //player take cards
-        io.to(playerSocket.id).emit('can take cards', {
-          newTable,
-          newHand,
-          selectedCards,
-          card,
+      //player take cards
+      io.to(playerSocket.id).emit('can take cards', {
+        newHand,
+      });
+      pair.lastTookId = playerSocket.id;
+
+      //If round over and have tabla
+      if (
+        newTable.length === 0 &&
+        (pair.moves === 12 || pair.moves === 24 || pair.moves === 36)
+      ) {
+        //get cards for new round
+        let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
+        axios.get(url).then((resp) => {
+          let newCards = resp.data.cards;
+          const blueCards = newCards.slice(0, 6);
+          const redCards = newCards.slice(6, 12);
+          pair.blue.cards.hand.push(...blueCards);
+          pair.blue.cards.opponent = Array(6).fill({ image: `images/red.svg` });
+          pair.red.cards.hand.push(...redCards);
+          pair.red.cards.opponent = Array(6).fill({ image: `images/blue.svg` });
+          io.to(pair.blue.socket.id).emit('new round', {
+            newHand: redCards,
+            opponentCards: pair.red.cards.opponent,
+          });
+          io.to(pair.red.socket.id).emit('new round', {
+            newHand: redCards,
+            opponentCards: pair.red.cards.opponent,
+          });
         });
-        pair.lastTookId = playerSocket.id;
-        // round over and have tabla
-        if (
-          newTable.length === 0 &&
-          (pair.moves === 12 || pair.moves === 24 || pair.moves === 36)
-        ) {
-          //get cards for new round
-          let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
-          axios.get(url).then((resp) => {
-            let newCards = resp.data.cards;
-            const blueCards = newCards.slice(0, 6);
-            const redCards = newCards.slice(6, 12);
-            io.to(pair.blue.socket.id).emit('new round', {
-              newHand: blueCards,
-            });
-            io.to(pair.red.socket.id).emit('new round', { newHand: redCards });
-          });
 
-          //add tabla to player
-          io.to(playerSocket.id).emit('tabla');
-        }
+        //add tabla to player
+        curentPlayer.tabla++;
+      }
 
-        // round over and don't have tabla
-        if (
-          newTable.length > 0 &&
-          (pair.moves === 12 || pair.moves === 24 || pair.moves === 36)
-        ) {
-          //get cards for new round
-          let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
-          axios.get(url).then((resp) => {
-            let newCards = resp.data.cards;
-            const blueCards = newCards.slice(0, 6);
-            const redCards = newCards.slice(6, 12);
-            io.to(pair.blue.socket.id).emit('new round', {
-              newHand: blueCards,
-            });
-            io.to(pair.red.socket.id).emit('new round', { newHand: redCards });
+      //If round over and don't have tabla
+      if (
+        newTable.length > 0 &&
+        (pair.moves === 12 || pair.moves === 24 || pair.moves === 36)
+      ) {
+        //get cards for new round
+        let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
+        axios.get(url).then((resp) => {
+          let newCards = resp.data.cards;
+          const blueCards = newCards.slice(0, 6);
+          const redCards = newCards.slice(6, 12);
+          pair.blue.cards.hand.push(...blueCards);
+          pair.blue.cards.opponent = Array(6).fill({ image: `images/red.svg` });
+          pair.red.cards.hand.push(...redCards);
+          pair.red.cards.opponent = Array(6).fill({ image: `images/blue.svg` });
+          io.to(pair.blue.socket.id).emit('new round', {
+            newHand: blueCards,
+            opponentCards: pair.blue.cards.opponent,
           });
-        }
-        // game over and have tabla
-        if (newTable.length === 0 && pair.moves === 48) {
-          //add tabla to player
-          io.to(playerSocket.id).emit('tabla');
-          io.to(playerSocket.room).emit('game over');
-        }
-        // game over and don't have tabla
-        if (newTable.length > 0 && pair.moves === 48) {
-          io.to(playerSocket.id).emit('last took', { newTable });
-          io.to(playerSocket.room).emit('game over');
-        }
-        // not round end and have tabla
-        if (
-          newTable.length === 0 &&
-          (pair.moves !== 12 || pair.moves !== 24 || pair.moves !== 36)
-        ) {
-          //add tabla to player
-          io.to(playerSocket.id).emit('tabla');
-        }
-        // not round over and dont't have tabla
-        if (
-          newTable.length > 0 &&
-          (pair.moves !== 12 || pair.moves !== 24 || pair.moves !== 36)
-        ) {
-        }
-        io.in(playerSocket.room).emit('change move', { newTable });
-        console.log('pair from can take', pair);
-      } else {
-        console.log('can NOT Take Cards emited');
-        let newTable = [...tableCards, card];
-        let newHand = handCards.filter(
-          (handCard) => handCard.code !== card.code
-        );
-        io.to(playerSocket.id).emit('can not take cards', {
-          newTable,
-          newHand,
-          card,
+          io.to(pair.red.socket.id).emit('new round', {
+            newHand: redCards,
+            opponentCards: pair.red.cards.opponent,
+          });
         });
-        io.in(playerSocket.room).emit('change move', { newTable });
+      }
+      // game over and have tabla
+      if (newTable.length === 0 && pair.moves === 48) {
+        //add tabla to player
+        curentPlayer.tabla++;
+        pair.table = [];
 
-        //if this was 12th move in round
-        if (pair.moves === 12 || pair.moves === 24 || pair.moves === 36) {
-          //get cards for new round
-          let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
-          axios.get(url).then((resp) => {
-            let newCards = resp.data.cards;
-            const blueCards = newCards.slice(0, 6);
-            const redCards = newCards.slice(6, 12);
-            io.to(pair.blue.socket.id).emit('new round', {
-              newHand: blueCards,
-            });
-            io.to(pair.red.socket.id).emit('new round', { newHand: redCards });
+        console.log(
+          'game over, ' +
+            pair.red.name +
+            'took' +
+            pair.red.cards.taken.length +
+            'cards.'
+        );
+        console.log(
+          'game over, ' +
+            pair.blue.name +
+            'took' +
+            pair.blue.cards.taken.length +
+            'cards.'
+        );
+        console.log(pair);
+        io.to(playerSocket.room).emit('game over');
+      }
+      // game over and don't have tabla
+      if (newTable.length > 0 && pair.moves === 48) {
+        curentPlayer.cards.taken.push(...pair.table);
+        pair.table = [];
+
+        console.log(
+          'game over, ' +
+            pair.red.name +
+            'took' +
+            pair.red.cards.taken.length +
+            'cards.'
+        );
+        console.log(
+          'game over, ' +
+            pair.blue.name +
+            'took' +
+            pair.blue.cards.taken.length +
+            'cards.'
+        );
+        console.log(pair);
+
+        io.to(playerSocket.room).emit('game over');
+      }
+      // not round end and have tabla
+      if (
+        newTable.length === 0 &&
+        (pair.moves !== 12 || pair.moves !== 24 || pair.moves !== 36)
+      ) {
+        //add tabla to player
+        curentPlayer.tabla++;
+      }
+      // not round over and dont't have tabla
+      if (
+        newTable.length > 0 &&
+        (pair.moves !== 12 || pair.moves !== 24 || pair.moves !== 36)
+      ) {
+      }
+      io.in(playerSocket.room).emit('change move', { newTable });
+      console.log(
+        curentPlayer.name,
+        ' je odneo:',
+        curentPlayer.cards.taken.length
+      );
+      console.log(curentPlayer.name, ' ima tabli:', curentPlayer.tabla);
+      console.log('curent move is:', pair.moves);
+    } else {
+      console.log('can NOT Take Cards emited');
+      let newTable = [...pair.table, card];
+      let newHand = curentPlayer.cards.hand.filter(
+        (handCard) => handCard.code !== card.code
+      );
+      curentPlayer.cards.hand = newHand;
+      pair.table = newTable;
+      io.to(playerSocket.id).emit('can not take cards', {
+        newHand,
+      });
+      io.in(playerSocket.room).emit('change move', { newTable });
+
+      //if this was 12th move in round
+      if (pair.moves === 12 || pair.moves === 24 || pair.moves === 36) {
+        //get cards for new round
+        let url = `https://deckofcardsapi.com/api/deck/${pair.deckId}/draw/?count=12`;
+        axios.get(url).then((resp) => {
+          let newCards = resp.data.cards;
+          const blueCards = newCards.slice(0, 6);
+          const redCards = newCards.slice(6, 12);
+          pair.blue.cards.hand.push(...blueCards);
+          pair.blue.cards.opponent = Array(6).fill({ image: `images/red.svg` });
+          pair.red.cards.hand.push(...redCards);
+          pair.red.cards.opponent = Array(6).fill({ image: `images/blue.svg` });
+          io.to(pair.blue.socket.id).emit('new round', {
+            newHand: blueCards,
+            opponentCards: pair.blue.cards.opponent,
           });
-          //if this was 48th move in game(game over)
-        } else if (pair.moves === 48) {
-          io.to(pair.lastTookId).emit('last took', { newTable });
-          io.to(playerSocket.room).emit('game over');
-        }
+          io.to(pair.red.socket.id).emit('new round', {
+            newHand: redCards,
+            opponentCards: pair.red.cards.opponent,
+          });
+        });
+        //if this was 48th move in game(game over)
+      } else if (pair.moves === 48) {
+        lastTookPlayer = gameLogic.findPlayer(pair, pair.lastTookId);
+        lastTookPlayer.cards.taken.push(...pair.table);
+        pair.table = [];
+        console.log(
+          'game over, ' +
+            pair.red.name +
+            'took' +
+            pair.red.cards.taken.length +
+            'cards.'
+        );
+        console.log(
+          'game over, ' +
+            pair.blue.name +
+            'took' +
+            pair.blue.cards.taken.length +
+            'cards.'
+        );
+        console.log(pair);
+
+        io.to(playerSocket.room).emit('game over');
       }
     }
-  );
+    socket.to(playerSocket.room).emit('opponent made move');
+  });
 
-  socket.on('find winner', async (player) => {
-    let pair = gameLogic.filterPairs(playing, player.socket)[0];
-
-    console.log('~~~~find winner player~~~~:', player);
+  socket.on('find winner', () => {
+    // let pair = gameLogic.filterPairs(playing, player.socket)[0];
+    console.log('~~~~find winner player~~~~:');
   });
 }
 

@@ -5,13 +5,12 @@ import Player from '../Player/Player';
 import { socket } from '../../socket';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  takeCards,
   setTable,
   setHand,
+  newRound,
   changeOnMove,
-  madeTabla,
-  lastTook,
   findWinner,
+  removeOpponentCard,
 } from '../../store/player';
 
 const Game = () => {
@@ -19,21 +18,12 @@ const Game = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    socket.on(
-      'can take cards',
-      ({ newTable, newHand, selectedCards, card }) => {
-        console.log(
-          'log from Game, ~can take cards~ socket event',
-          selectedCards
-        );
-        dispatch(takeCards({ selectedCards, card }));
-        dispatch(setHand(newHand));
-      }
-    );
+    socket.on('can take cards', ({ newHand }) => {
+      dispatch(setHand(newHand));
+    });
   }, []);
   useEffect(() => {
-    socket.on('can not take cards', ({ newTable, newHand }) => {
-      console.log("log from can't take cards", newHand);
+    socket.on('can not take cards', ({ newHand }) => {
       dispatch(setHand(newHand));
     });
   }, []);
@@ -44,28 +34,23 @@ const Game = () => {
       dispatch(changeOnMove());
     });
   }, []);
+  useEffect(() => {
+    socket.on('opponent made move', () => {
+      dispatch(removeOpponentCard());
+    });
+  }, []);
 
   useEffect(() => {
-    socket.on('new round', ({ newHand }) => {
+    socket.on('new round', ({ newHand, opponentCards }) => {
       console.log('New Round Started, hand:', newHand);
-      dispatch(setHand(newHand));
+      dispatch(newRound({ newHand, opponentCards }));
     });
   }, []);
-  useEffect(() => {
-    socket.on('tabla', () => {
-      dispatch(madeTabla());
-    });
-  }, []);
+
   useEffect(() => {
     socket.on('game over', () => {
       dispatch(setTable([]));
       dispatch(findWinner());
-    });
-  }, []);
-  useEffect(() => {
-    socket.on('last took', ({ newTable }) => {
-      console.log('new table from last took:', newTable);
-      dispatch(lastTook(newTable));
     });
   }, []);
 
