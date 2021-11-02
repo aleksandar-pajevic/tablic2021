@@ -128,12 +128,70 @@ let findPlayer = (pair, playerSocketId) => {
   }
 };
 
-function findWinner(pair) {}
+function findWinner(pair) {
+  function valuateCards(cards) {
+    let score = 0;
+    for (let i = 0; i < cards.length; i++) {
+      if (
+        cards[i].value === 'KING' ||
+        cards[i].value === 'QUEEN' ||
+        cards[i].value === 'JACK' ||
+        cards[i].value === 'ACE'
+      ) {
+        score++;
+      } else if (
+        cards[i].code === '0H' ||
+        cards[i].code === '0C' ||
+        cards[i].code === '0S'
+      ) {
+        score++;
+      } else if (cards[i].code === '0D') {
+        score = score + 2;
+      } else if (cards[i].code === '2C') {
+        score++;
+      }
+    }
+    return score;
+  }
+  blueScore = valuateCards(pair.blue.cards.taken);
+  redScore = valuateCards(pair.red.cards.taken);
+  console.log('blue cards value:', blueScore);
+  console.log('red cards value:', redScore);
+
+  //table
+  blueScore = blueScore + pair.blue.tabla;
+  redScore = redScore + pair.red.tabla;
+  console.log('blue cards value + tabla:', blueScore);
+  console.log('red cards value + tabla:', redScore);
+
+  // 3 na karte
+  console.log('blue took: ' + pair.blue.cards.taken.length + ' cards.');
+  console.log('red took: ' + pair.red.cards.taken.length + ' cards.');
+
+  if (pair.blue.cards.taken.length > pair.red.cards.taken.length) {
+    console.log('blue got 3 na karte');
+    blueScore = blueScore + 3;
+  } else if (pair.blue.cards.taken.length < pair.red.cards.taken.length) {
+    console.log('red got 3 na karte');
+    redScore = redScore + 3;
+  }
+  if (blueScore > redScore) {
+    console.log('blue - ' + pair.blue.name + ' won game!');
+    return pair.blue.name;
+  } else if (blueScore < redScore) {
+    console.log('red - ' + pair.red.name + ' won game!');
+    return pair.red.name;
+  } else {
+    console.log('It was even!');
+    return 0;
+  }
+}
 
 exports.takeCards = takeCards;
 exports.filterTable = filterTable;
 exports.filterPairs = filterPairs;
 exports.findPlayer = findPlayer;
+exports.findWinner = findWinner;
 
 // let test = [
 //   {
@@ -158,31 +216,119 @@ exports.findPlayer = findPlayer;
 // };
 // console.log(takeCards(test, test2));
 
-// let pair = {
-//   room: 'bc32a8d6-35eb-4f7b-a17e-2af0e541ec4c',
-//   deckId: 'rfjch0po9f1b',
-//   moves: 1,
-//   lastTookId: 'UFhz54UmZLy_Zn23AAAH',
-//   blue: {
-//     name: 'aaa',
-//     socket: {
-//       _eventsCount: 3,
-//       _maxListeners: undefined,
-//       id: 'kokoko1234',
+let pair = {
+  room: 'bc32a8d6-35eb-4f7b-a17e-2af0e541ec4c',
+  deckId: 'rfjch0po9f1b',
+  moves: 1,
+  lastTookId: 'UFhz54UmZLy_Zn23AAAH',
+  blue: {
+    name: 'Koja',
+    tabla: 4,
+    socket: {
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      id: 'kokoko1234',
 
-//       data: {},
-//     },
-//   },
-//   red: {
-//     name: 'sss',
-//     socket: {
-//       _eventsCount: 3,
-//       _maxListeners: undefined,
-//       id: 'kokoko12345',
-//       data: {},
-//     },
-//   },
-// };
+      data: {},
+    },
+    cards: {
+      taken: [
+        {
+          code: '',
+          value: 'ACE',
+        },
+        {
+          code: '',
+          value: 'JACK',
+        },
+        {
+          code: '',
+          value: '8',
+        },
+        {
+          code: '',
+          value: '6',
+        },
+        {
+          code: '',
+          value: '10',
+        },
+        {
+          code: '',
+          value: 'QUEEN',
+        },
+        {
+          code: '0D',
+          value: '',
+        },
+        {
+          code: '',
+          value: 'ACE',
+        },
+        {
+          code: '2H',
+          value: '',
+        },
+      ],
+    },
+  },
+  red: {
+    name: 'Bule',
+    tabla: 2,
+    socket: {
+      _eventsCount: 3,
+      _maxListeners: undefined,
+      id: 'kokoko12345',
+      data: {},
+    },
+    cards: {
+      taken: [
+        {
+          code: '2C',
+          value: '',
+        },
+        {
+          code: '',
+          value: 'ACE',
+        },
+        {
+          code: '',
+          value: 'KING',
+        },
+        {
+          code: '',
+          value: '10',
+        },
+        {
+          code: '',
+          value: '6',
+        },
+        {
+          code: '',
+          value: '4',
+        },
+        {
+          code: '',
+          value: 'JACK',
+        },
+        {
+          code: '',
+          value: 'QUEEN',
+        },
+        {
+          code: '',
+          value: '5',
+        },
+        {
+          code: '',
+          value: 'JACK',
+        },
+      ],
+    },
+  },
+};
+
+findWinner(pair);
 // let player1 = {
 //   name: '',
 //   onMove: null,

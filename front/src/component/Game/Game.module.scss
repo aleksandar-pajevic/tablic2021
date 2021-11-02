@@ -5,3 +5,8 @@
   flex-direction: column;
   height: 100vh;
 }
+#modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}

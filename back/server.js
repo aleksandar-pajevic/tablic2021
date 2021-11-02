@@ -200,7 +200,10 @@ function conected(socket) {
         //add tabla to player
         curentPlayer.tabla++;
         pair.table = [];
-
+        const winner = gameLogic.findWinner(pair);
+        if (winner === 0) {
+          winner = 'it was even!';
+        }
         console.log(
           'game over, ' +
             pair.red.name +
@@ -216,12 +219,16 @@ function conected(socket) {
             'cards.'
         );
         console.log(pair);
-        io.to(playerSocket.room).emit('game over');
+        io.to(playerSocket.room).emit('game over', { winner: winner });
       }
       // game over and don't have tabla
       if (newTable.length > 0 && pair.moves === 48) {
         curentPlayer.cards.taken.push(...pair.table);
         pair.table = [];
+        const winner = gameLogic.findWinner(pair);
+        if (winner === 0) {
+          winner = 'it was even!';
+        }
 
         console.log(
           'game over, ' +
@@ -239,7 +246,7 @@ function conected(socket) {
         );
         console.log(pair);
 
-        io.to(playerSocket.room).emit('game over');
+        io.to(playerSocket.room).emit('game over', { winner: winner });
       }
       // not round end and have tabla
       if (
@@ -302,6 +309,10 @@ function conected(socket) {
         lastTookPlayer = gameLogic.findPlayer(pair, pair.lastTookId);
         lastTookPlayer.cards.taken.push(...pair.table);
         pair.table = [];
+        const winner = gameLogic.findWinner(pair);
+        if (winner === 0) {
+          winner = 'it was even!';
+        }
         console.log(
           'game over, ' +
             pair.red.name +
@@ -318,7 +329,7 @@ function conected(socket) {
         );
         console.log(pair);
 
-        io.to(playerSocket.room).emit('game over');
+        io.to(playerSocket.room).emit('game over', { winner: winner });
       }
     }
     socket.to(playerSocket.room).emit('opponent made move');

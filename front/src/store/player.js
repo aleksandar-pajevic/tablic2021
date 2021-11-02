@@ -72,9 +72,6 @@ export const playerSlice = createSlice({
     madeTabla: (state, action) => {
       state.tabla++;
     },
-    findWinner: (state, action) => {
-      socket.emit('find winner', state);
-    },
     removeOpponentCard: (state, action) => {
       state.opponent.cards.hand.splice(-1);
     },
@@ -94,7 +91,6 @@ export const {
   tryToTake,
   madeTabla,
   lastTook,
-  findWinner,
   removeOpponentCard,
   newRound,
 } = playerSlice.actions;
