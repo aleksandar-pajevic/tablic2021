@@ -99,11 +99,14 @@ const Game = () => {
           </h2>
         </div>
       </Modal>
-      <Player player={player.opponent} />
+      <Player
+        player={player.opponent}
+        activeClass={player.onMove ? false : true}
+      />
 
       <Table player={player} />
 
-      <Player player={player} />
+      <Player player={player} activeClass={player.onMove ? true : false} />
     </div>
   );
 };
