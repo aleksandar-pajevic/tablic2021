@@ -1,9 +1,19 @@
+.player {
+  display: flex;
+  flex-direction: row;
+}
+.playerInfo {
+  text-align: center;
+  min-width: 10vw;
+}
 .playerCards {
   display: flex;
-  padding: 10px;
+  justify-content: space-evenly;
+  padding: 2px;
   border: 4px solid #f10000;
   background-color: #f10000;
   border-radius: 10px;
+  min-width: 62vw;
 }
 .onMove {
   border: 4px solid green;

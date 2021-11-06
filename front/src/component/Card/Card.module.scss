@@ -1,13 +1,15 @@
+$height_aspectRatio: 1.39;
+.cardWrap {
+  width: 10vw;
+}
 .card {
   text-align: center;
-  width: 12vw;
-  height: 21vh;
-  margin-left: 5px;
+  padding-top: 128%;
   // background-color: red;
   border: 1px solid black;
   background-size: cover;
   background-position: center;
-  border-radius: 10px;
+  border-radius: 1vh;
 }
 .active {
   border: 3px solid red;

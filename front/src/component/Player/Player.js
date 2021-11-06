@@ -1,11 +1,16 @@
 import React from 'react';
 import styles from './Player.module.scss';
 import Card from '../Card/Card';
+import { useSelector } from 'react-redux';
 
-const Player = ({ player, activeClass }) => {
+const Player = ({ player, activeClass, tabla }) => {
+  console.log('tabla:', tabla);
   return (
     <div className={styles.player}>
-      <h3>{player.name}</h3>
+      <div className={styles.playerInfo}>
+        <h3>{player.name}</h3>
+        <h5>Tabla: {tabla}</h5>
+      </div>
 
       <div
         className={

@@ -20,28 +20,30 @@ const Card = ({ card, onMove, isTable, isPlayer }) => {
   }, [onMove]);
 
   return (
-    <div
-      onClick={
-        onMove && isTable
-          ? selected
+    <div className={styles.cardWrap}>
+      <div
+        onClick={
+          onMove && isTable
+            ? selected
+              ? () => {
+                  dispatch(unselectCard(card));
+                  toggleSelect();
+                }
+              : () => {
+                  dispatch(selectCard(card));
+                  toggleSelect();
+                }
+            : onMove && isPlayer
             ? () => {
-                dispatch(unselectCard(card));
-                toggleSelect();
+                dispatch(tryToTake(card));
+                console.log('selected card', playerSelectedCards);
               }
-            : () => {
-                dispatch(selectCard(card));
-                toggleSelect();
-              }
-          : onMove && isPlayer
-          ? () => {
-              dispatch(tryToTake(card));
-              console.log('selected card', playerSelectedCards);
-            }
-          : null
-      }
-      className={selected ? `${styles.card} ${styles.active}` : styles.card}
-      style={{ backgroundImage: `url(${card.image})` }}
-    ></div>
+            : null
+        }
+        className={selected ? `${styles.card} ${styles.active}` : styles.card}
+        style={{ backgroundImage: `url(${card.image})` }}
+      ></div>
+    </div>
   );
 };
 
