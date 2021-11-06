@@ -11,6 +11,7 @@ import {
   newRound,
   changeOnMove,
   removeOpponentCard,
+  setTablas,
 } from '../../store/player';
 
 // Modal.setAppElement('#App');
@@ -29,6 +30,8 @@ const Game = () => {
 
   useEffect(() => {
     socket.on('can take cards', ({ newHand }) => {
+      if (newHand.length === 0) {
+      }
       dispatch(setHand(newHand));
     });
   }, []);
@@ -42,6 +45,12 @@ const Game = () => {
       console.log('change move emmited');
       dispatch(setTable(newTable));
       dispatch(changeOnMove());
+    });
+  }, []);
+  useEffect(() => {
+    socket.on('tabla update', ({ curentTabla, opponentTabla }) => {
+      console.log('tabla update', curentTabla, opponentTabla);
+      dispatch(setTablas({ player: curentTabla, opponent: opponentTabla }));
     });
   }, []);
   useEffect(() => {
@@ -81,7 +90,7 @@ const Game = () => {
 
   return (
     <div className={styles.outterContainer}>
-      <h1>Game</h1>
+      {/* <h1>Game</h1> */}
       <Modal
         isOpen={modalIsOpen}
         onAfterOpen={afterOpenModal}
@@ -102,11 +111,16 @@ const Game = () => {
       <Player
         player={player.opponent}
         activeClass={player.onMove ? false : true}
+        tabla={player.opponent.tabla}
       />
 
       <Table player={player} />
 
-      <Player player={player} activeClass={player.onMove ? true : false} />
+      <Player
+        tabla={player.tabla}
+        player={player}
+        activeClass={player.onMove ? true : false}
+      />
     </div>
   );
 };

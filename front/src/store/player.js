@@ -5,12 +5,14 @@ const initialState = {
   name: '',
   onMove: null,
   socket: null,
+  tabla: 0,
   cards: {
     selected: [],
     hand: null,
     table: [],
   },
   opponent: {
+    tabla: 0,
     name: null,
     cards: {
       hand: null,
@@ -75,6 +77,10 @@ export const playerSlice = createSlice({
     removeOpponentCard: (state, action) => {
       state.opponent.cards.hand.splice(-1);
     },
+    setTablas: (state, action) => {
+      state.tabla = action.payload.player;
+      state.opponent.tabla = action.payload.opponent;
+    },
   },
 });
 
@@ -93,6 +99,7 @@ export const {
   lastTook,
   removeOpponentCard,
   newRound,
+  setTablas,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
