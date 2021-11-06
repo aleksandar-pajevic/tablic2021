@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Card.module.scss';
 import { selectCard, unselectCard, tryToTake } from '../../store/player';
 import { useDispatch } from 'react-redux';
@@ -12,6 +12,12 @@ const Card = ({ card, onMove, isTable, isPlayer }) => {
   const toggleSelect = () => {
     setSelected(!selected);
   };
+
+  useEffect(() => {
+    if (isTable && !onMove) {
+      setSelected(false);
+    }
+  }, [onMove]);
 
   return (
     <div
