@@ -263,6 +263,14 @@ function conected(socket) {
       ) {
       }
       io.in(playerSocket.room).emit('change move', { newTable });
+      io.to(pair.blue.socket.id).emit('tabla update', {
+        curentTabla: pair.blue.tabla,
+        opponentTabla: pair.red.tabla,
+      });
+      io.to(pair.red.socket.id).emit('tabla update', {
+        curentTabla: pair.red.tabla,
+        opponentTabla: pair.blue.tabla,
+      });
       console.log(
         curentPlayer.name,
         ' je odneo:',
