@@ -52,6 +52,7 @@ const Game = () => {
 
   useEffect(() => {
     socket.on('change move', ({ newTable }) => {
+      setSeconds(15);
       console.log('change move emmited');
       dispatch(setTable(newTable));
       dispatch(changeOnMove());
@@ -76,21 +77,6 @@ const Game = () => {
         clearInterval(myInterval);
       };
     }
-    // if (!player.onMove && player.opponent.cards.hand > 0) {
-    //   console.log('opponent seconds', seconds);
-    //   let myInterval = setInterval(() => {
-    //     if (seconds > 0) {
-    //       setSeconds(seconds - 1);
-    //     }
-    //     if (seconds === 0) {
-    //       clearInterval(myInterval);
-    //       setSeconds(15);
-    //     }
-    //   }, 1000);
-    //   return () => {
-    //     clearInterval(myInterval);
-    //   };
-    // }
   }, [player.onMove, player.cards.hand, seconds]);
 
   useEffect(() => {
