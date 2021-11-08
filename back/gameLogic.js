@@ -35,6 +35,10 @@ function takeCards(cards, card) {
   for (let i = 0; i < cards.length; i++) {
     values.push(filterCard(cards[i]));
   }
+  if (values.length === 0) {
+    return false;
+  }
+
   valuesArr = [];
   values.sort((a, b) => a - b);
 
@@ -50,9 +54,6 @@ function takeCards(cards, card) {
     }
   }
 
-  if (values.length === 0) {
-    return false;
-  }
   // console.log('values array:', valuesArr);
   for (niz of valuesArr) {
     let sum = 0;
