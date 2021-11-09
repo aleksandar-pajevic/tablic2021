@@ -22,14 +22,25 @@ const pairs = [];
 const playing = [];
 
 io.on('connect', conected);
+
 function conected(socket) {
+  socket.on("disconnect", () => {
+    // socket.rooms.size === 0
+    const disconectedIndex = candidates.findIndex(player => player.socketId === socket.id);
+    console.log("player disconnected", disconectedIndex);
+    candidates.splice(disconectedIndex, 1)
+  io.emit('candidates', {candidates: candidates});
+
+  });
+
+
   console.log('new client connected!');
   socket.on('join', ({ playerName }, callback) => {
     console.log(`Player name is ${playerName}`);
-    if (candidates.length === 0) {
-      candidates.push({
+   
+         candidates.push({
         name: playerName,
-        socket,
+        socketId: socket.id,
         tabla: 0,
         cards: {
           hand: [],
@@ -37,87 +48,103 @@ function conected(socket) {
           opponent: [],
         },
       });
+      console.log(candidates.length);
 
-      console.log('we have a blue player:', candidates[0].name);
-      console.log('candidates lenght:', candidates.length);
-    } else {
-      pairs.push({
-        room: uuidv4(),
-        moves: 0,
-        table: [],
-        blue: candidates.pop(),
-        red: {
-          name: playerName,
-          socket,
-          tabla: 0,
-          cards: {
-            hand: [],
-            taken: [],
-            opponent: [],
-          },
-        },
-      });
-      const lastPairIndex = pairs.length - 1;
+  io.emit('candidates', {candidates: candidates});
 
-      console.log('pairs lenght:', pairs.length);
-      console.log('lastPair index:', lastPairIndex);
-      console.log('we have red candidate', pairs[lastPairIndex].red.name);
-      console.log(pairs);
+    // if (candidates.length === 0) {
+    //   candidates.push({
+    //     name: playerName,
+    //     socket,
+    //     tabla: 0,
+    //     cards: {
+    //       hand: [],
+    //       taken: [],
+    //       opponent: [],
+    //     },
+    //   });
 
-      if (pairs.length > 0) {
-        let pair = pairs.pop();
-        const blue = pair.blue;
-        const red = pair.red;
-        const table = pair.table;
-        // console.log('pair is this:', pair);
-        // console.log('pairs are this:', pairs);
+    //   console.log('we have a blue player:', candidates[0].name);
+    //   console.log('candidates lenght:', candidates.length);
+    // } else {
+    //   pairs.push({
+    //     room: uuidv4(),
+    //     moves: 0,
+    //     table: [],
+    //     blue: candidates.pop(),
+    //     red: {
+    //       name: playerName,
+    //       socket,
+    //       tabla: 0,
+    //       cards: {
+    //         hand: [],
+    //         taken: [],
+    //         opponent: [],
+    //       },
+    //     },
+    //   });
+    //   const lastPairIndex = pairs.length - 1;
 
-        // ADD PLAYERS TO ROOM
-        blue.socket.join(pair.room);
-        red.socket.join(pair.room);
+    //   console.log('pairs lenght:', pairs.length);
+    //   console.log('lastPair index:', lastPairIndex);
+    //   console.log('we have red candidate', pairs[lastPairIndex].red.name);
+    //   console.log(pairs);
 
-        // GET CARDS FROM API
-        axios.get(deckUrl).then((resp) => {
-          deckId = resp.data.deck_id;
-          pair.deckId = deckId;
-          let firstRoundCards = resp.data.cards;
-          const blueCards = firstRoundCards.slice(0, 6);
-          const redCards = firstRoundCards.slice(6, 12);
-          const tableCards = firstRoundCards.slice(12);
-          blue.cards.hand.push(...blueCards);
-          blue.cards.opponent = Array(6).fill({ image: `images/red.svg` });
-          red.cards.hand.push(...redCards);
-          red.cards.opponent = Array(6).fill({ image: `images/blue.svg` });
-          table.push(...tableCards);
+    //   if (pairs.length > 0) {
+    //     let pair = pairs.pop();
+    //     const blue = pair.blue;
+    //     const red = pair.red;
+    //     const table = pair.table;
+    //     // console.log('pair is this:', pair);
+    //     // console.log('pairs are this:', pairs);
 
-          // to individual socketid (private message)
-          io.to(blue.socket.id).emit('first round', {
-            cards: blue.cards.hand,
-            table: table,
-            onMove: true,
-            opponent: { name: red.name, cards: blue.cards.opponent },
-            socket: {
-              room: pair.room,
-              id: blue.socket.id,
-            },
-          });
-          // to individual socketid (private message)
-          io.to(red.socket.id).emit('first round', {
-            cards: red.cards.hand,
-            table: table,
-            onMove: false,
-            opponent: { name: blue.name, cards: red.cards.opponent },
-            socket: {
-              room: pair.room,
-              id: red.socket.id,
-            },
-          });
+    //     // ADD PLAYERS TO ROOM
+    //     blue.socket.join(pair.room);
+    //     red.socket.join(pair.room);
 
-          playing.push(pair);
-        });
-      }
-    }
+    //     // GET CARDS FROM API
+    //     axios.get(deckUrl).then((resp) => {
+    //       deckId = resp.data.deck_id;
+    //       pair.deckId = deckId;
+    //       let firstRoundCards = resp.data.cards;
+    //       const blueCards = firstRoundCards.slice(0, 6);
+    //       const redCards = firstRoundCards.slice(6, 12);
+    //       const tableCards = firstRoundCards.slice(12);
+    //       blue.cards.hand.push(...blueCards);
+    //       blue.cards.opponent = Array(6).fill({ image: `images/red.svg` });
+    //       red.cards.hand.push(...redCards);
+    //       red.cards.opponent = Array(6).fill({ image: `images/blue.svg` });
+    //       table.push(...tableCards);
+
+    //       // to individual socketid (private message)
+    //       io.to(blue.socket.id).emit('first round', {
+    //         cards: blue.cards.hand,
+    //         table: table,
+    //         onMove: true,
+    //         opponent: { name: red.name, cards: blue.cards.opponent },
+    //         socket: {
+    //           room: pair.room,
+    //           id: blue.socket.id,
+    //         },
+    //       });
+    //       // to individual socketid (private message)
+    //       io.to(red.socket.id).emit('first round', {
+    //         cards: red.cards.hand,
+    //         table: table,
+    //         onMove: false,
+    //         opponent: { name: blue.name, cards: red.cards.opponent },
+    //         socket: {
+    //           room: pair.room,
+    //           id: red.socket.id,
+    //         },
+    //       });
+
+    //       playing.push(pair);
+    //     });
+    //   }
+    // }
   });
+
 
   socket.on('try to take', ({ selectedCards, playerSocket, card }) => {
     let canTakeCards = gameLogic.takeCards(selectedCards, card);

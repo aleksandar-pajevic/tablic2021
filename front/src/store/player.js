@@ -81,6 +81,9 @@ export const playerSlice = createSlice({
       state.tabla = action.payload.player;
       state.opponent.tabla = action.payload.opponent;
     },
+    joinLoby: (state, action) => {
+      socket.emit('join', {playerName: action.payload})
+    },
   },
 });
 
@@ -100,6 +103,8 @@ export const {
   removeOpponentCard,
   newRound,
   setTablas,
+  joinLoby,
+  
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

@@ -329,7 +329,7 @@ let pair = {
   },
 };
 
-findWinner(pair);
+// findWinner(pair);
 // let player1 = {
 //   name: '',
 //   onMove: null,

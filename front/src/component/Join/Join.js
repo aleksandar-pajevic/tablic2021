@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './Join.module.scss';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { addPlayerName } from '../../store/player';
+import { addPlayerName, joinLoby } from '../../store/player';
 import { useHistory } from 'react-router-dom';
 
 const Join = () => {
@@ -12,6 +12,7 @@ const Join = () => {
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       dispatch(addPlayerName(name));
+      dispatch(joinLoby(name))
       history.push('/loby');
     }
   };
@@ -30,7 +31,7 @@ const Join = () => {
           }}
           onKeyPress={handleKeyPress}
         />
-        <Link onClick={() => dispatch(addPlayerName(name))} to={`/loby`}>
+      <Link onClick={() => {dispatch(addPlayerName(name)); console.log('da li se izvrsava?');   dispatch(joinLoby(name)) }} to={`/loby`}>
           <button className={styles.btn} type="submit">
             ENTER
           </button>
