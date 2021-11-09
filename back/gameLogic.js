@@ -175,7 +175,10 @@ function findWinner(pair) {
   } else if (pair.blue.cards.taken.length < pair.red.cards.taken.length) {
     console.log('red got 3 na karte');
     redScore = redScore + 3;
+  }else if(pair.blue.cards.taken.length === 0 && pair.red.cards.taken.length === 0){
+    return 0;
   }
+
   if (blueScore > redScore) {
     console.log('blue - ' + pair.blue.name + ' won game!');
     return pair.blue.name;

@@ -84,6 +84,19 @@ export const playerSlice = createSlice({
     joinLoby: (state, action) => {
       socket.emit('join', {playerName: action.payload})
     },
+    challengeOpponent: (state, action) =>{
+      console.log('chalenge opponent', action.payload);
+      socket.emit('challenge', {challenged: action.payload.challenged, challenger: action.payload.challenger})
+    },
+    acceptChallenge: (state, action) => {
+      console.log('accept challenge');
+      socket.emit('accept challenge', {challenged: action.payload.challenged, challenger: action.payload.challenger})
+    },
+    refuseChallenge: (state, action) => {
+      console.log('refuse challenge');
+      socket.emit('refuse challenge', {challenger: action.payload})
+
+    }
   },
 });
 
@@ -104,7 +117,10 @@ export const {
   newRound,
   setTablas,
   joinLoby,
-  
+  challengeOpponent,
+  acceptChallenge,
+  refuseChallenge
+
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

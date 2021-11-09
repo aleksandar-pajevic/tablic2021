@@ -130,6 +130,8 @@ const Game = () => {
         onRequestClose={closeModal}
         contentLabel="Game Over"
         style={modalStyle}
+        ariaHideApp={false}
+
       >
         <div id="modal">
           <h1>Game Over</h1>

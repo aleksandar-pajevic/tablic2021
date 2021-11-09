@@ -8,3 +8,56 @@
   flex-direction: column;
   height: 100vh;
 }
+.onlinePlayer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 3vh;
+  width: 20vw;
+  background-color: cadetblue;
+  margin-bottom: 4px;
+  .challengeBtn {
+    background-color: yellow;
+    height: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+}
+.randomMatch {
+  height: 3vh;
+  width: 25vw;
+  background-color: goldenrod;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.modalBtns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-top: 10vh;
+  .acceptBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: green;
+    height: 3vh;
+    width: 25vw;
+    border-radius: 15vw;
+    cursor: pointer;
+  }
+  .refuseBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: red;
+    height: 3vh;
+    width: 25vw;
+    border-radius: 15vw;
+    cursor: pointer;
+  }
+}

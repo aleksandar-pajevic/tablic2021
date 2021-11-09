@@ -31,7 +31,7 @@ const Join = () => {
           }}
           onKeyPress={handleKeyPress}
         />
-      <Link onClick={() => {dispatch(addPlayerName(name)); console.log('da li se izvrsava?');   dispatch(joinLoby(name)) }} to={`/loby`}>
+      <Link onClick={() => {dispatch(addPlayerName(name)); dispatch(joinLoby(name)) }} to={`/loby`}>
           <button className={styles.btn} type="submit">
             ENTER
           </button>
