@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 
 const Player = ({ player, activeClass, tabla, moveTime }) => {
   console.log('tabla:', tabla);
-  console.log(moveTime);
   return (
     <div className={styles.player}>
       <div className={styles.playerInfo}>

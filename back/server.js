@@ -263,6 +263,8 @@ function conected (socket) {
     io.to(challenger.socketId).emit('challenge refused')
   })
 
+ 
+
   socket.on('try to take', ({ selectedCards, playerSocket, card }) => {
     let canTakeCards = gameLogic.takeCards(selectedCards, card)
     let pair = gameLogic.filterPairs(playing, playerSocket)[0]
@@ -463,6 +465,16 @@ function conected (socket) {
     // let pair = gameLogic.filterPairs(playing, player.socket)[0];
     console.log('~~~~find winner player~~~~:')
   })
+
+  socket.on('sendMessage', ({message, player}, callback)=>{
+    console.log('player from send message', player);
+    const pair = playing.find(pair => pair.room === player.roomId);
+
+    io.to(pair.room).emit('message', { user: player.name, text: message });
+
+  })
+
+  
 }
 
 //new roud cards
