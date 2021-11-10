@@ -6,12 +6,15 @@
   height: 100vh;
   background-color: green;
 }
-#modal {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+
+.ReactModal__Content .ReactModal__Content--after-open {
+  h1 {
+    color: red;
+  }
+  .backToLobyBtn {
+    text-decoration: none;
+    width: 15vw;
+    height: 5vh;
+    background-color: yellow;
+  }
 }
-// .onTurnArrow {
-//   font-size: 6vh;
-//   color: green;
-// }

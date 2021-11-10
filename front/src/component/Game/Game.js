@@ -3,6 +3,7 @@ import styles from './Game.module.scss';
 import Table from '../Table/Table';
 import Player from '../Player/Player';
 import Modal from 'react-modal';
+import { Link } from 'react-router-dom';
 import { socket } from '../../socket';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -13,6 +14,7 @@ import {
   removeOpponentCard,
   setTablas,
   tryToTake,
+  joinLoby
 } from '../../store/player';
 
 // Modal.setAppElement('#App');
@@ -129,9 +131,8 @@ const Game = () => {
         onAfterOpen={afterOpenModal}
         onRequestClose={closeModal}
         contentLabel="Game Over"
-        style={modalStyle}
         ariaHideApp={false}
-
+   style={modalStyle}
       >
         <div id="modal">
           <h1>Game Over</h1>
@@ -141,8 +142,12 @@ const Game = () => {
               ? newWinner
               : `new winner is ${newWinner}`}
           </h2>
+          <Link className={styles.backToLobyBtn} onClick={() =>  dispatch(joinLoby(player.name)) } to={`/loby`}>
+          <span className='backToLobyBtn' >back to loby</span>
+          </Link>
         </div>
       </Modal>
+      <div className={styles.gameCol}>
       <Player
         player={player.opponent}
         tabla={player.opponent.tabla}
@@ -158,6 +163,8 @@ const Game = () => {
         activeClass={player.onMove ? true : false}
         moveTime={!player.onMove ? '' : `you have ${seconds}s to make move`}
       />
+      </div>
+
     </div>
   );
 };
