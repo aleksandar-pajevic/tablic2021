@@ -38,24 +38,32 @@ const Loby = () => {
   }
   console.log('filtered candidates', onlinePlayers)
 
-  socket.on('first round', ({ cards, table, onMove, opponent, socket }) => {
-    console.log('first round trigered')
-    dispatch(initializeGame({ cards, table, opponent, onMove, socket }))
-    history.push('/game')
+  useEffect(() => {
+    socket.on('first round', ({ cards, table, onMove, opponent, socket }) => {
+      console.log('first round trigered')
+      dispatch(initializeGame({ cards, table, opponent, onMove, socket }))
+      history.push('/game')
+    })
+  })
+  useEffect(() => {
+   
+  })
+  useEffect(() => {
+    socket.on('challenged', ({ challenger }) => {
+      console.log('you been challenged')
+      setChallenger(challenger)
+      openChallenngedModal()
+    })
+  })
+  useEffect(() => {
+    socket.on('challenge refused', () => {
+      closeChallenngerModal()
+    })
   })
 
   socket.on('candidates', ({ candidates }) => {
     console.log('candidates event emited', candidates)
     dispatch(updateCandidates(candidates))
-  })
-  socket.on('challenged', ({ challenger }) => {
-    console.log('you been challenged')
-    setChallenger(challenger)
-    openChallenngedModal()
-  })
-
-  socket.on('challenge refused', () => {
-    closeChallenngerModal()
   })
 
   function openChallenngerModal (winner) {

@@ -8,6 +8,7 @@ const filterPairs = require('./gameLogic')
 const { v1: uuidv1, v4: uuidv4 } = require('uuid')
 
 const axios = require('axios')
+const { LOADIPHLPAPI } = require('dns')
 
 const deckUrl = 'https://deckofcardsapi.com/api/deck/new/draw/?count=16'
 
@@ -18,7 +19,7 @@ const io = socketio(server)
 const PORT = process.env.PORT || 5000
 
 const candidates = []
-const onlinePlayers = [];
+const onlinePlayers = []
 const pairs = []
 const playing = []
 
@@ -26,13 +27,20 @@ io.on('connect', conected)
 
 function conected (socket) {
   socket.on('disconnect', () => {
-    // socket.rooms.size === 0
-    console.log('candidates:', candidates)
+    let disconectedPairIndex = playing.findIndex(pair =>
+      pair.blue.socket.id === socket.id || pair.red.socket.id === socket.id )
+      if (disconectedPairIndex < 0) {
+        return
+      } else {
+        io.to(playing[disconectedPairIndex].room).emit('opponent disconnected');
+        playing.splice(disconectedPairIndex, 1)
+      }
+    console.log('disconected pair:', disconectedPairIndex)
+    console.log("reduced playing arr", playing);
     console.log('disconnected:', socket.id)
     const disconectedIndex = candidates.findIndex(
       player => player.socket.id === socket.id
     )
-    console.log('player disconnected', disconectedIndex)
     if (disconectedIndex < 0) {
       return
     } else {
@@ -43,8 +51,38 @@ function conected (socket) {
   })
 
   console.log('new client connected!')
+
+  //removing pair from playing array after game over
+  socket.on('back to loby', ({ player }) => {
+    const pairToRemove = playing.findIndex(pair => pair.room === player.room)
+    console.log('room from client', player.room)
+    console.log('back to loby should remove index', pairToRemove)
+    if (pairToRemove > -1) {
+      playing.splice(pairToRemove, 1)
+    }
+    // candidates.push({
+    //   name: player.name,
+    //   socket,
+    //   tabla: 0,
+    //   cards: {
+    //     hand: [],
+    //     taken: [],
+    //     opponent: []
+    //   }
+    // })
+    // onlinePlayers.push({
+    //   name: player.name,
+    //   socketId: socket.id
+    // })
+
+    console.log('reduced playing arr from back to loby:', playing)
+    //update online players list
+    // io.emit('candidates', { candidates: onlinePlayers })
+  })
+
+  //adding player to candidates and onlinePlayers array for loby
   socket.on('join', ({ playerName }, callback) => {
-    console.log(`Player name is ${playerName}`)
+    console.log(`Player name is ${playerName}`, 'socket:', socket.id)
 
     candidates.push({
       name: playerName,
@@ -58,10 +96,8 @@ function conected (socket) {
     })
     onlinePlayers.push({
       name: playerName,
-      socketId: socket.id,
+      socketId: socket.id
     })
-
-    console.log(candidates.length)
 
     io.emit('candidates', { candidates: onlinePlayers })
     // if (candidates.length === 0) {
@@ -159,23 +195,19 @@ function conected (socket) {
 
   //Someone clicked on player in loby to challenge him
   socket.on('challenge', ({ challenger, challenged }) => {
-    console.log('challenger:', challenger, challenged)
-
     //ask challenged if he wanna play
     io.to(challenged.socketId).emit('challenged', { challenger })
   })
 
   //if challenged wanna play
   socket.on('accept challenge', ({ challenger, challenged }) => {
-    console.log('challenged wanna play', challenged, challenger)
     const bluePlayer = candidates.find(
       candidate => candidate.socket.id === challenger.socketId
     )
     const redPlayer = candidates.find(
       candidate => candidate.socket.id === challenged.socketId
     )
-    console.log('blue player', bluePlayer)
-    console.log('red player', redPlayer)
+
     pairs.push({
       room: uuidv4(),
       moves: 0,
@@ -190,19 +222,15 @@ function conected (socket) {
       candidate => candidate.socket.id === bluePlayer.socketId
     )
     candidates.splice(bluePlayerIndex, 1)
-    onlinePlayers.splice(bluePlayerIndex, 1);
+    onlinePlayers.splice(bluePlayerIndex, 1)
     const redPlayerIndex = candidates.findIndex(
       candidate => candidate.socket.id === redPlayer.socketId
     )
     candidates.splice(redPlayerIndex, 1)
-    onlinePlayers.splice(redPlayerIndex,1)
+    onlinePlayers.splice(redPlayerIndex, 1)
 
     //update online players in loby
     io.emit('candidates', { candidates: onlinePlayers })
-
-
-    console.log('reduced candidates:', candidates)
-    console.log('pairs', pairs)
 
     if (pairs.length > 0) {
       let pair = pairs.pop()
@@ -254,20 +282,18 @@ function conected (socket) {
         })
 
         playing.push(pair)
+        console.log('plaing after frst round', playing)
       })
     }
   })
   //if challenged don't wanna play
   socket.on('refuse challenge', ({ challenger }) => {
-    console.log('challenged do not wanna play, challenger is:', challenger)
     io.to(challenger.socketId).emit('challenge refused')
   })
 
- 
-
   socket.on('try to take', ({ selectedCards, playerSocket, card }) => {
     let canTakeCards = gameLogic.takeCards(selectedCards, card)
-    let pair = gameLogic.filterPairs(playing, playerSocket)[0]
+    let pair = playing.find(pair => pair.room === playerSocket.room)
     let curentPlayer = gameLogic.findPlayer(pair, playerSocket.id)
     pair.moves++
 
@@ -349,12 +375,9 @@ function conected (socket) {
         const winner = gameLogic.findWinner(pair)
         if (winner === 0) {
           io.to(playerSocket.room).emit('game over', { winner: 'it was even!' })
-
-        }else{
+        } else {
           io.to(playerSocket.room).emit('game over', { winner: winner })
-
         }
-        console.log(pair)
         io.to(playerSocket.room).emit('game over', { winner: winner })
       }
       // game over and don't have tabla
@@ -364,12 +387,9 @@ function conected (socket) {
         const winner = gameLogic.findWinner(pair)
         if (winner === 0) {
           io.to(playerSocket.room).emit('game over', { winner: 'it was even!' })
-
-        }else{
+        } else {
           io.to(playerSocket.room).emit('game over', { winner: winner })
-
         }
-        console.log(pair)
 
         io.to(playerSocket.room).emit('game over', { winner: winner })
       }
@@ -387,7 +407,7 @@ function conected (socket) {
         (pair.moves !== 12 || pair.moves !== 24 || pair.moves !== 36)
       ) {
       }
-      io.in(playerSocket.room).emit('change move', { newTable })
+      console.log('pair.room:', pair.room)
       io.to(pair.blue.socket.id).emit('tabla update', {
         curentTabla: pair.blue.tabla,
         opponentTabla: pair.red.tabla
@@ -396,15 +416,8 @@ function conected (socket) {
         curentTabla: pair.red.tabla,
         opponentTabla: pair.blue.tabla
       })
-      console.log(
-        curentPlayer.name,
-        ' je odneo:',
-        curentPlayer.cards.taken.length
-      )
-      console.log(curentPlayer.name, ' ima tabli:', curentPlayer.tabla)
-      console.log('curent move is:', pair.moves)
+      io.in(pair.room).emit('change move', { newTable })
     } else {
-      console.log('can NOT Take Cards emited')
       let newTable = [...pair.table, card]
       let newHand = curentPlayer.cards.hand.filter(
         handCard => handCard.code !== card.code
@@ -414,7 +427,7 @@ function conected (socket) {
       io.to(playerSocket.id).emit('can not take cards', {
         newHand
       })
-      io.in(playerSocket.room).emit('change move', { newTable })
+      console.log('pair.room:', pair.room)
 
       //if this was 12th move in round
       if (pair.moves === 12 || pair.moves === 24 || pair.moves === 36) {
@@ -439,7 +452,7 @@ function conected (socket) {
         })
         //if this was 48th move in game(game over)
       } else if (pair.moves === 48) {
-        if(pair.lastTookId){
+        if (pair.lastTookId) {
           lastTookPlayer = gameLogic.findPlayer(pair, pair.lastTookId)
           lastTookPlayer.cards.taken.push(...pair.table)
         }
@@ -448,33 +461,25 @@ function conected (socket) {
         const winner = gameLogic.findWinner(pair)
         if (winner === 0) {
           io.to(playerSocket.room).emit('game over', { winner: 'it was even!' })
-
-        }else{
+        } else {
           io.to(playerSocket.room).emit('game over', { winner: winner })
-
         }
- 
-        console.log(pair)
-
       }
+
+      io.in(pair.room).emit('change move', { newTable })
     }
     socket.to(playerSocket.room).emit('opponent made move')
   })
 
   socket.on('find winner', () => {
     // let pair = gameLogic.filterPairs(playing, player.socket)[0];
-    console.log('~~~~find winner player~~~~:')
   })
 
-  socket.on('sendMessage', ({message, player}, callback)=>{
-    console.log('player from send message', player);
-    const pair = playing.find(pair => pair.room === player.roomId);
+  socket.on('sendMessage', ({ message, player }, callback) => {
+    const pair = playing.find(pair => pair.room === player.roomId)
 
-    io.to(pair.room).emit('message', { user: player.name, text: message });
-
+    io.to(pair.room).emit('message', { user: player.name, text: message })
   })
-
-  
 }
 
 //new roud cards

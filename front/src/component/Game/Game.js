@@ -4,7 +4,7 @@ import Table from '../Table/Table'
 import Player from '../Player/Player'
 import Chat from '../Chat/Chat'
 import Modal from 'react-modal'
-import { Link } from 'react-router-dom'
+import { Link, useHistory} from 'react-router-dom'
 import { socket } from '../../socket'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -15,7 +15,8 @@ import {
   removeOpponentCard,
   setTablas,
   tryToTake,
-  joinLoby
+  joinLoby,
+  backToLoby
 } from '../../store/player'
 
 // Modal.setAppElement('#App');
@@ -26,6 +27,7 @@ const Game = () => {
   const [newWinner, setNewWinner] = useState('')
   const [seconds, setSeconds] = useState(15)
   const dispatch = useDispatch()
+  const history = useHistory();
   const modalStyle = {
     content: {
       backgroundColor: 'cadetblue',
@@ -59,6 +61,16 @@ const Game = () => {
       console.log('change move emmited')
       dispatch(setTable(newTable))
       dispatch(changeOnMove())
+    })
+  }, [])
+
+  useEffect(() => {
+    socket.on('opponent disconnected', () => {
+      alert('opponent disconencted, redirecting to loby')
+      dispatch(backToLoby({ name: player.name, room: player.socket.room }))
+      setNewWinner('')
+      setSeconds(15)
+      history.push('/loby')
     })
   }, [])
 
@@ -144,7 +156,13 @@ const Game = () => {
           </h2>
           <Link
             className={styles.backToLobyBtn}
-            onClick={() => dispatch(joinLoby(player.name))}
+            onClick={() => {
+              dispatch(
+                backToLoby({ name: player.name, room: player.socket.room })
+              )
+              setNewWinner('')
+              setSeconds(15)
+            }}
             to={`/loby`}
           >
             <span className='backToLobyBtn'>back to loby</span>
@@ -169,7 +187,7 @@ const Game = () => {
         />
       </div>
       <div className={styles.chatCol}>
-   <Chat player={player}/>
+        <Chat player={player} />
       </div>
     </div>
   )
